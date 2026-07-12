@@ -142,3 +142,123 @@ export interface ModuleOverviewDto {
   workflowSteps: string[];
   apiRoutes: string[];
 }
+
+export type DashboardPeriod =
+  | 'today'
+  | 'yesterday'
+  | 'last_7_days'
+  | 'last_30_days'
+  | 'current_month'
+  | 'previous_month'
+  | 'financial_year';
+
+export interface DashboardMetricDto {
+  label: string;
+  value: string;
+  tone: 'maroon' | 'plum' | 'gold' | 'green';
+}
+
+export interface DashboardSeriesPointDto {
+  label: string;
+  value: number;
+}
+
+export interface DashboardAttentionItemDto {
+  label: string;
+  value: string;
+}
+
+export interface DashboardSummaryDto {
+  period: DashboardPeriod;
+  dateRange: {
+    from: string;
+    to: string;
+  };
+  metrics: DashboardMetricDto[];
+  dailySales: DashboardSeriesPointDto[];
+  orderStatus: DashboardSeriesPointDto[];
+  salesByChannel: DashboardSeriesPointDto[];
+  attentionItems: DashboardAttentionItemDto[];
+  collectionStatus: Record<string, boolean>;
+}
+
+export type OrderSource =
+  | 'Admin'
+  | 'WhatsApp'
+  | 'Instagram'
+  | 'Facebook'
+  | 'Phone'
+  | 'Offline'
+  | 'Marketplace'
+  | 'Referral';
+
+export type OrderPaymentStatus = 'Unpaid' | 'Partially paid' | 'Paid';
+
+export type OrderFulfilmentStatus =
+  | 'Draft'
+  | 'Pending'
+  | 'Confirmed'
+  | 'Packed'
+  | 'Ready to ship'
+  | 'Shipped'
+  | 'Delivered'
+  | 'Cancelled';
+
+export interface CreateOrderItemDto {
+  productName: string;
+  sku?: string;
+  hsn?: string;
+  quantity: number;
+  unitPriceInPaise: number;
+  discountInPaise: number;
+  gstRate: number;
+}
+
+export interface CreateOrderDto {
+  source: OrderSource;
+  customer: {
+    name: string;
+    mobile: string;
+    email?: string;
+    billingAddress?: string;
+    shippingAddress?: string;
+    state?: string;
+    stateCode?: string;
+  };
+  items: CreateOrderItemDto[];
+  shippingChargeInPaise: number;
+  packagingChargeInPaise: number;
+  otherChargeInPaise: number;
+  advancePaidInPaise: number;
+  notes?: string;
+  internalNotes?: string;
+}
+
+export interface OrderItemDto extends CreateOrderItemDto {
+  taxableAmountInPaise: number;
+  taxAmountInPaise: number;
+  lineTotalInPaise: number;
+}
+
+export interface OrderDto {
+  id: string;
+  orderNumber: string;
+  source: OrderSource;
+  customer: CreateOrderDto['customer'] & { id?: string };
+  items: OrderItemDto[];
+  subtotalInPaise: number;
+  itemDiscountInPaise: number;
+  taxableAmountInPaise: number;
+  taxAmountInPaise: number;
+  shippingChargeInPaise: number;
+  packagingChargeInPaise: number;
+  otherChargeInPaise: number;
+  totalInPaise: number;
+  advancePaidInPaise: number;
+  dueAmountInPaise: number;
+  paymentStatus: OrderPaymentStatus;
+  fulfilmentStatus: OrderFulfilmentStatus;
+  notes?: string;
+  internalNotes?: string;
+  createdAt: string;
+}

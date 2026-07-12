@@ -23,6 +23,11 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
+        path: 'orders/new',
+        loadComponent: () =>
+          import('./features/orders/new-order.component').then((m) => m.NewOrderComponent),
+      },
+      {
         path: ':module',
         loadComponent: () =>
           import('./features/operations/operations-page.component').then(
