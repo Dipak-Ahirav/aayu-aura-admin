@@ -1,5 +1,9 @@
 import { Router } from 'express';
 import { login, me } from '../domain/auth/auth.controller.js';
+import {
+  getModuleOverviewBySlug,
+  listModuleOverviews,
+} from '../domain/module-overviews/module-overview.controller.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { ok } from '../infrastructure/http/api-response.js';
 
@@ -15,6 +19,8 @@ v1Router.get('/ready', (_req, res) => {
 
 v1Router.post('/auth/login', login);
 v1Router.get('/auth/me', authenticate, me);
+v1Router.get('/module-overviews', authenticate, listModuleOverviews);
+v1Router.get('/module-overviews/:slug', authenticate, getModuleOverviewBySlug);
 
 v1Router.get('/settings/business', authenticate, (_req, res) => {
   res.json(

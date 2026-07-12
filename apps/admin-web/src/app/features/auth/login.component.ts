@@ -49,9 +49,7 @@ import { AuthService } from '../../core/services/auth.service';
             <p class="error" role="alert">{{ error() }}</p>
           }
 
-          <button mat-flat-button color="primary" type="submit" >
-            Sign in
-          </button>
+          <button mat-flat-button color="primary" type="submit">Sign in</button>
         </form>
       </mat-card>
     </main>
@@ -162,7 +160,7 @@ export class LoginComponent {
   readonly submitDisabled = computed(() => this.loading() || this.form.invalid);
 
   submit(): void {
-    console.log("true:",this.submitDisabled())
+    console.log('true:', this.submitDisabled());
     // if (this.submitDisabled()) {
     //   return;
     // }

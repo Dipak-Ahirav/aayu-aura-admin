@@ -13,10 +13,21 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' },
   { label: 'Products', route: '/products', icon: 'inventory_2' },
+  { label: 'Master Data', route: '/master-data', icon: 'category' },
+  { label: 'Suppliers', route: '/suppliers', icon: 'store' },
   { label: 'Purchases', route: '/purchases', icon: 'receipt_long' },
+  { label: 'Inventory', route: '/inventory', icon: 'warehouse' },
+  { label: 'Customers', route: '/customers', icon: 'groups' },
   { label: 'Orders', route: '/orders', icon: 'shopping_bag' },
+  { label: 'Payments', route: '/payments', icon: 'payments' },
   { label: 'Invoices', route: '/invoices', icon: 'description' },
+  { label: 'Shipping', route: '/shipping', icon: 'local_shipping' },
+  { label: 'Returns', route: '/returns', icon: 'assignment_return' },
+  { label: 'Expenses', route: '/expenses', icon: 'account_balance_wallet' },
   { label: 'Reports', route: '/reports', icon: 'query_stats' },
+  { label: 'Tally Export', route: '/accounting-exports', icon: 'ios_share' },
+  { label: 'Users', route: '/users', icon: 'admin_panel_settings' },
+  { label: 'Audit Logs', route: '/audit-logs', icon: 'history' },
   { label: 'Settings', route: '/settings', icon: 'settings' },
 ];
 
@@ -88,6 +99,7 @@ const navItems: NavItem[] = [
         padding: 24px 18px;
         background: #2a1729;
         color: #fffaf2;
+        overflow-y: auto;
       }
 
       .brand {
@@ -121,7 +133,7 @@ const navItems: NavItem[] = [
       }
 
       nav a {
-        min-height: 44px;
+        min-height: 40px;
         display: flex;
         align-items: center;
         gap: 12px;
@@ -130,6 +142,10 @@ const navItems: NavItem[] = [
         text-decoration: none;
         border-radius: 8px;
         font-weight: 600;
+      }
+
+      nav mat-icon {
+        flex: 0 0 auto;
       }
 
       nav a.active,

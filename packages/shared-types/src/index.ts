@@ -85,3 +85,60 @@ export interface BusinessSettingsDto {
   financialYearStartMonth: 4;
   gstEnabled: boolean;
 }
+
+export type OperationalModuleSlug =
+  | 'products'
+  | 'master-data'
+  | 'suppliers'
+  | 'purchases'
+  | 'inventory'
+  | 'customers'
+  | 'orders'
+  | 'payments'
+  | 'invoices'
+  | 'shipping'
+  | 'returns'
+  | 'expenses'
+  | 'reports'
+  | 'accounting-exports'
+  | 'users'
+  | 'audit-logs'
+  | 'settings';
+
+export interface ModuleMetricDto {
+  label: string;
+  value: string;
+  tone: 'maroon' | 'plum' | 'gold' | 'green';
+}
+
+export interface ModuleActionDto {
+  label: string;
+  icon: string;
+  kind: 'primary' | 'secondary';
+  description: string;
+}
+
+export interface ModuleTabDto {
+  label: string;
+  count?: number;
+}
+
+export interface ModuleTableDto {
+  columns: string[];
+  rows: Record<string, string>[];
+}
+
+export interface ModuleOverviewDto {
+  slug: OperationalModuleSlug;
+  title: string;
+  breadcrumb: string;
+  description: string;
+  status: 'foundation' | 'ready' | 'planned';
+  metrics: ModuleMetricDto[];
+  actions: ModuleActionDto[];
+  tabs: ModuleTabDto[];
+  filters: string[];
+  table: ModuleTableDto;
+  workflowSteps: string[];
+  apiRoutes: string[];
+}
