@@ -1,0 +1,29 @@
+{
+  "name": "aayu-aura-admin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aayu & Aura saree business admin portal monorepo.",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @aayu-aura/api",
+    "dev:api": "npm run dev --workspace @aayu-aura/api",
+    "dev:web": "npm run start --workspace @aayu-aura/admin-web",
+    "build": "npm run build --workspaces --if-present",
+    "build:api": "npm run build --workspace @aayu-aura/api",
+    "build:web": "npm run build --workspace @aayu-aura/admin-web",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "node node_modules/prettier/bin/prettier.cjs --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "typescript": "^5.6.3"
+  }
+}
