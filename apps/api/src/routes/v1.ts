@@ -5,7 +5,13 @@ import {
   getModuleOverviewBySlug,
   listModuleOverviews,
 } from '../domain/module-overviews/module-overview.controller.js';
+import { createInvoice, getInvoice, listInvoices } from '../domain/invoices/invoice.controller.js';
 import { createOrder, getOrder, listOrders } from '../domain/orders/order.controller.js';
+import {
+  createProduct,
+  listProducts,
+  updateProduct,
+} from '../domain/products/product.controller.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { ok } from '../infrastructure/http/api-response.js';
 
@@ -22,9 +28,15 @@ v1Router.get('/ready', (_req, res) => {
 v1Router.post('/auth/login', login);
 v1Router.get('/auth/me', authenticate, me);
 v1Router.get('/dashboard/summary', authenticate, dashboardSummary);
+v1Router.get('/products', authenticate, listProducts);
+v1Router.post('/products', authenticate, createProduct);
+v1Router.patch('/products/:id', authenticate, updateProduct);
 v1Router.get('/orders', authenticate, listOrders);
 v1Router.post('/orders', authenticate, createOrder);
 v1Router.get('/orders/:id', authenticate, getOrder);
+v1Router.get('/invoices', authenticate, listInvoices);
+v1Router.post('/invoices', authenticate, createInvoice);
+v1Router.get('/invoices/:id', authenticate, getInvoice);
 v1Router.get('/module-overviews', authenticate, listModuleOverviews);
 v1Router.get('/module-overviews/:slug', authenticate, getModuleOverviewBySlug);
 

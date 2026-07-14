@@ -36,14 +36,23 @@ const navItems: NavItem[] = [
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule],
   template: `
-    <div class="shell" [class.nav-open]="navOpen()">
+    <div class="shell" [class.nav-open]="navOpen()" [class.nav-collapsed]="navCollapsed()">
       <aside class="sidebar" aria-label="Primary navigation">
         <div class="brand">
           <div class="logo">A&A</div>
-          <div>
+          <div class="brand-copy">
             <strong>Aayu & Aura</strong>
             <span>Admin Portal</span>
           </div>
+          <button
+            mat-icon-button
+            type="button"
+            class="collapse-button"
+            (click)="toggleNavCollapse()"
+            [attr.aria-label]="navCollapsed() ? 'Expand navigation' : 'Collapse navigation'"
+          >
+            <mat-icon>{{ navCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+          </button>
         </div>
 
         <nav>
@@ -52,9 +61,11 @@ const navItems: NavItem[] = [
               [routerLink]="item.route"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+              [attr.aria-label]="item.label"
+              [attr.title]="navCollapsed() ? item.label : null"
             >
               <mat-icon>{{ item.icon }}</mat-icon>
-              <span>{{ item.label }}</span>
+              <span class="nav-label">{{ item.label }}</span>
             </a>
           }
         </nav>
@@ -90,6 +101,11 @@ const navItems: NavItem[] = [
         min-height: 100vh;
         display: grid;
         grid-template-columns: 280px minmax(0, 1fr);
+        transition: grid-template-columns 180ms ease;
+      }
+
+      .shell.nav-collapsed {
+        grid-template-columns: 84px minmax(0, 1fr);
       }
 
       .sidebar {
@@ -100,6 +116,7 @@ const navItems: NavItem[] = [
         background: #2a1729;
         color: #fffaf2;
         overflow-y: auto;
+        overflow-x: hidden;
       }
 
       .brand {
@@ -107,6 +124,15 @@ const navItems: NavItem[] = [
         gap: 12px;
         align-items: center;
         margin-bottom: 32px;
+      }
+
+      .brand-copy,
+      .nav-label {
+        white-space: nowrap;
+        opacity: 1;
+        transition:
+          opacity 120ms ease,
+          width 180ms ease;
       }
 
       .brand span {
@@ -127,6 +153,40 @@ const navItems: NavItem[] = [
         font-weight: 700;
       }
 
+      .collapse-button {
+        margin-left: auto;
+        color: #fffaf2;
+      }
+
+      .shell.nav-collapsed .sidebar {
+        padding-inline: 14px;
+      }
+
+      .shell.nav-collapsed .brand {
+        justify-content: center;
+      }
+
+      .shell.nav-collapsed .logo {
+        width: 44px;
+        height: 44px;
+      }
+
+      .shell.nav-collapsed .brand-copy,
+      .shell.nav-collapsed .nav-label {
+        width: 0;
+        opacity: 0;
+        overflow: hidden;
+      }
+
+      .shell.nav-collapsed .collapse-button {
+        position: absolute;
+        top: 62px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
       nav {
         display: grid;
         gap: 6px;
@@ -142,6 +202,11 @@ const navItems: NavItem[] = [
         text-decoration: none;
         border-radius: 8px;
         font-weight: 600;
+      }
+
+      .shell.nav-collapsed nav a {
+        justify-content: center;
+        padding-inline: 0;
       }
 
       nav mat-icon {
@@ -196,6 +261,10 @@ const navItems: NavItem[] = [
           grid-template-columns: 1fr;
         }
 
+        .shell.nav-collapsed {
+          grid-template-columns: 1fr;
+        }
+
         .sidebar {
           position: fixed;
           inset: 0 auto 0 0;
@@ -203,6 +272,30 @@ const navItems: NavItem[] = [
           transform: translateX(-100%);
           transition: transform 180ms ease;
           z-index: 5;
+        }
+
+        .shell.nav-collapsed .sidebar {
+          padding: 24px 18px;
+        }
+
+        .shell.nav-collapsed .brand {
+          justify-content: flex-start;
+        }
+
+        .shell.nav-collapsed .brand-copy,
+        .shell.nav-collapsed .nav-label {
+          width: auto;
+          opacity: 1;
+          overflow: visible;
+        }
+
+        .collapse-button {
+          display: none;
+        }
+
+        .shell.nav-collapsed nav a {
+          justify-content: flex-start;
+          padding: 0 12px;
         }
 
         .shell.nav-open .sidebar {
@@ -225,6 +318,7 @@ export class AdminLayoutComponent {
   private readonly auth = inject(AuthService);
   readonly navItems = navItems;
   readonly navOpen = signal(false);
+  readonly navCollapsed = signal(false);
   readonly greeting = computed(() => {
     const profile = this.auth.profile();
     return profile ? `Welcome, ${profile.name}` : 'Welcome';
@@ -232,6 +326,10 @@ export class AdminLayoutComponent {
 
   toggleNav(): void {
     this.navOpen.update((value) => !value);
+  }
+
+  toggleNavCollapse(): void {
+    this.navCollapsed.update((value) => !value);
   }
 
   logout(): void {

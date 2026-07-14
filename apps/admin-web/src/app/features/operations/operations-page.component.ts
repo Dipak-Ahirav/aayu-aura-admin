@@ -117,33 +117,6 @@ type PageState =
                 </table>
               </div>
             </article>
-
-            <aside class="side-panel">
-              <article>
-                <h2>Workflow</h2>
-                <ol>
-                  @for (step of state.overview.workflowSteps; track step) {
-                    <li>{{ step }}</li>
-                  }
-                </ol>
-              </article>
-
-              <article>
-                <h2>API coverage</h2>
-                <ul>
-                  @for (route of state.overview.apiRoutes; track route) {
-                    <li>{{ route }}</li>
-                  }
-                </ul>
-              </article>
-
-              @if (selectedAction()) {
-                <article class="selection">
-                  <h2>Selected action</h2>
-                  <p>{{ selectedAction() }}</p>
-                </article>
-              }
-            </aside>
           </section>
         </section>
       }
@@ -205,7 +178,6 @@ type PageState =
 
       .metrics article,
       .table-panel,
-      .side-panel article,
       .state-panel {
         background: var(--aa-surface-strong);
         border: 1px solid var(--aa-border);
@@ -279,13 +251,12 @@ type PageState =
 
       .content-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.6fr);
+        grid-template-columns: 1fr;
         gap: 16px;
         align-items: start;
       }
 
-      .table-panel,
-      .side-panel article {
+      .table-panel {
         padding: 22px;
       }
 
@@ -329,42 +300,6 @@ type PageState =
         font-size: 0.78rem;
         text-transform: uppercase;
         letter-spacing: 0;
-      }
-
-      .side-panel {
-        display: grid;
-        gap: 16px;
-      }
-
-      ol,
-      ul {
-        display: grid;
-        gap: 10px;
-        margin: 14px 0 0;
-        padding-left: 20px;
-      }
-
-      li {
-        line-height: 1.45;
-      }
-
-      .side-panel ul {
-        list-style: none;
-        padding-left: 0;
-      }
-
-      .side-panel ul li {
-        padding: 10px 12px;
-        border-radius: 8px;
-        background: #fbf7f0;
-        color: var(--aa-plum);
-        font-family: Consolas, 'Courier New', monospace;
-        font-size: 0.82rem;
-        overflow-wrap: anywhere;
-      }
-
-      .selection {
-        border-color: rgba(123, 31, 53, 0.28);
       }
 
       .state-panel {
@@ -422,7 +357,6 @@ export class OperationsPageComponent {
   private readonly modules = inject(ModuleOverviewService);
 
   readonly selectedTab = signal('');
-  readonly selectedAction = signal<string | null>(null);
   readonly slug = computed(
     () => this.route.snapshot.paramMap.get('module') as OperationalModuleSlug,
   );
@@ -432,7 +366,6 @@ export class OperationsPageComponent {
       this.modules.getOverview(slug).pipe(
         map((overview): PageState => {
           this.selectedTab.set(overview.tabs[0]?.label ?? '');
-          this.selectedAction.set(null);
           return { status: 'ready', overview };
         }),
         startWith({ status: 'loading' } as PageState),
@@ -446,7 +379,7 @@ export class OperationsPageComponent {
     ),
   );
 
-  selectAction(label: string): void {
-    this.selectedAction.set(label);
+  selectAction(_label: string): void {
+    return;
   }
 }

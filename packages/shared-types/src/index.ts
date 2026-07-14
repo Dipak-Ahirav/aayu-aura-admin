@@ -56,6 +56,7 @@ export interface AdminProductDto {
   id: string;
   name: string;
   sku: string;
+  category?: string;
   status: 'draft' | 'active' | 'archived';
   purchasePriceInPaise: number;
   landedCostInPaise: number;
@@ -63,8 +64,34 @@ export interface AdminProductDto {
   currentPhysicalStock: number;
   reservedStock: number;
   availableStock: number;
+  reorderLevel?: number;
+  hsn?: string;
+  gstRate?: number;
+  coverImageUrl?: string;
+  internalNotes?: string;
+  createdAt?: string;
+}
+
+export type ProductStatus = AdminProductDto['status'];
+
+export interface CreateProductDto {
+  name: string;
+  sku: string;
+  category?: string;
+  status?: ProductStatus;
+  purchasePriceInPaise: number;
+  landedCostInPaise: number;
+  sellingPriceInPaise: number;
+  currentPhysicalStock: number;
+  reservedStock?: number;
+  reorderLevel?: number;
+  hsn?: string;
+  gstRate?: number;
+  coverImageUrl?: string;
   internalNotes?: string;
 }
+
+export type UpdateProductDto = Partial<CreateProductDto>;
 
 export interface PublicProductDto {
   id: string;
@@ -260,5 +287,42 @@ export interface OrderDto {
   fulfilmentStatus: OrderFulfilmentStatus;
   notes?: string;
   internalNotes?: string;
+  createdAt: string;
+}
+
+export type InvoiceType =
+  'Tax invoice' | 'Retail invoice' | 'Proforma invoice' | 'Quotation' | 'Payment receipt';
+
+export type InvoiceStatus = 'Draft' | 'Finalised' | 'Cancelled';
+
+export interface CreateInvoiceDto {
+  orderId: string;
+  type: InvoiceType;
+  dueDate?: string;
+  notes?: string;
+}
+
+export interface InvoiceDto {
+  id: string;
+  invoiceNumber: string;
+  type: InvoiceType;
+  status: InvoiceStatus;
+  orderId: string;
+  orderNumber: string;
+  customer: CreateOrderDto['customer'];
+  items: OrderItemDto[];
+  subtotalInPaise: number;
+  itemDiscountInPaise: number;
+  taxableAmountInPaise: number;
+  taxAmountInPaise: number;
+  shippingChargeInPaise: number;
+  packagingChargeInPaise: number;
+  otherChargeInPaise: number;
+  grandTotalInPaise: number;
+  paidAmountInPaise: number;
+  dueAmountInPaise: number;
+  invoiceDate: string;
+  dueDate?: string;
+  notes?: string;
   createdAt: string;
 }

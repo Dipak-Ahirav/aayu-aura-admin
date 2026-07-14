@@ -8,6 +8,18 @@ import { environment } from '../../../environments/environment';
 export class OrderApiService {
   private readonly http = inject(HttpClient);
 
+  listOrders() {
+    return this.http
+      .get<ApiSuccess<OrderDto[]>>(`${environment.apiBaseUrl}/orders`)
+      .pipe(map((response) => response.data));
+  }
+
+  getOrder(id: string) {
+    return this.http
+      .get<ApiSuccess<OrderDto>>(`${environment.apiBaseUrl}/orders/${id}`)
+      .pipe(map((response) => response.data));
+  }
+
   createOrder(order: CreateOrderDto) {
     return this.http
       .post<ApiSuccess<OrderDto>>(`${environment.apiBaseUrl}/orders`, order)
