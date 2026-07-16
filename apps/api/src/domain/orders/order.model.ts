@@ -75,16 +75,7 @@ const orderSchema = new Schema<OrderDocument>(
     source: {
       type: String,
       required: true,
-      enum: [
-        'Admin',
-        'WhatsApp',
-        'Instagram',
-        'Facebook',
-        'Phone',
-        'Offline',
-        'Marketplace',
-        'Referral',
-      ],
+      trim: true,
       index: true,
     },
     customerId: { type: Schema.Types.ObjectId, ref: 'Customer', index: true },

@@ -84,15 +84,17 @@ import { AuthService } from '../../core/services/auth.service';
         border: 1px solid rgba(255, 255, 255, 0.48);
         display: grid;
         place-items: center;
-        font-family: 'Playfair Display', Georgia, serif;
+        font-family: var(--aa-font-family);
         font-size: 1.6rem;
+        font-weight: 800;
         margin-bottom: auto;
       }
 
       h1 {
-        font-family: 'Playfair Display', Georgia, serif;
+        font-family: var(--aa-font-family);
+        font-weight: 800;
         font-size: clamp(3rem, 7vw, 6rem);
-        line-height: 0.95;
+        line-height: 0.98;
         margin: 0 0 20px;
         letter-spacing: 0;
       }

@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import type { CreateOrderDto, OrderSource } from '@aayu-aura/shared-types';
+import { MasterDataApiService } from '../master-data/master-data-api.service';
+import { masterValues } from '../master-data/master-data-registry';
 import { OrderApiService } from './order-api.service';
 
 interface DraftItem {
@@ -72,7 +74,7 @@ interface DraftItem {
             <mat-form-field appearance="outline">
               <mat-label>Order source</mat-label>
               <mat-select name="source" [(ngModel)]="source">
-                @for (option of sources; track option) {
+                @for (option of sources(); track option) {
                   <mat-option [value]="option">{{ option }}</mat-option>
                 }
               </mat-select>
@@ -453,18 +455,10 @@ interface DraftItem {
 })
 export class NewOrderComponent {
   private readonly orders = inject(OrderApiService);
+  private readonly masterData = inject(MasterDataApiService);
   private readonly router = inject(Router);
 
-  readonly sources: OrderSource[] = [
-    'Admin',
-    'WhatsApp',
-    'Instagram',
-    'Facebook',
-    'Phone',
-    'Offline',
-    'Marketplace',
-    'Referral',
-  ];
+  readonly sources = signal<OrderSource[]>([]);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
   readonly createdOrderNumber = signal<string | null>(null);
@@ -482,6 +476,21 @@ export class NewOrderComponent {
   notes = '';
   internalNotes = '';
   items: DraftItem[] = [this.emptyItem()];
+
+  constructor() {
+    this.masterData
+      .listMasterData({
+        type: 'Order setup',
+        status: 'active',
+        sort: 'sort_order',
+        page: 1,
+        pageSize: 100,
+      })
+      .subscribe({
+        next: (data) => this.sources.set(masterValues(data.items, 'Order Source')),
+        error: () => this.sources.set(masterValues([], 'Order Source')),
+      });
+  }
 
   subtotal(): number {
     return this.items.reduce(

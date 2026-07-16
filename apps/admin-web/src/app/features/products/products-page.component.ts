@@ -6,13 +6,20 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import type { AdminProductDto, CreateProductDto, ProductStatus } from '@aayu-aura/shared-types';
-import { BehaviorSubject, catchError, map, of, startWith, switchMap } from 'rxjs';
+import type {
+  AdminProductDto,
+  CreateProductDto,
+  MasterDataDto,
+  ProductStatus,
+} from '@aayu-aura/shared-types';
+import { BehaviorSubject, catchError, forkJoin, map, of, startWith, switchMap } from 'rxjs';
+import { MasterDataApiService } from '../master-data/master-data-api.service';
+import { masterValues } from '../master-data/master-data-registry';
 import { ProductApiService } from './product-api.service';
 
 type ProductsState =
   | { status: 'loading' }
-  | { status: 'ready'; products: AdminProductDto[] }
+  | { status: 'ready'; products: AdminProductDto[]; categories: string[] }
   | { status: 'error'; message: string };
 
 type StatusFilter = 'All' | ProductStatus;
@@ -101,7 +108,15 @@ type StatusFilter = 'All' | ProductStatus;
 
               <mat-form-field appearance="outline">
                 <mat-label>Category</mat-label>
-                <input matInput [(ngModel)]="form.category" name="productCategory" />
+                <mat-select [(ngModel)]="form.category" name="productCategory">
+                  <mat-option value="">Uncategorised</mat-option>
+                  @for (category of state.categories; track category) {
+                    <mat-option [value]="category">{{ category }}</mat-option>
+                  }
+                  @if (form.category && !state.categories.includes(form.category)) {
+                    <mat-option [value]="form.category">{{ form.category }}</mat-option>
+                  }
+                </mat-select>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
@@ -600,6 +615,7 @@ type StatusFilter = 'All' | ProductStatus;
 })
 export class ProductsPageComponent {
   private readonly products = inject(ProductApiService);
+  private readonly masterData = inject(MasterDataApiService);
   private readonly refreshTrigger = new BehaviorSubject<void>(undefined);
 
   readonly selectedProduct = signal<AdminProductDto | null>(null);
@@ -631,12 +647,25 @@ export class ProductsPageComponent {
 
   readonly state$ = this.refreshTrigger.pipe(
     switchMap(() =>
-      this.products.listProducts().pipe(
-        map((products): ProductsState => {
+      forkJoin({
+        products: this.products.listProducts(),
+        masterData: this.masterData.listMasterData({
+          type: 'Catalogue',
+          status: 'active',
+          sort: 'sort_order',
+          page: 1,
+          pageSize: 100,
+        }),
+      }).pipe(
+        map(({ products, masterData }): ProductsState => {
           if (!this.selectedProduct() && products[0]) {
             this.selectedProduct.set(products[0]);
           }
-          return { status: 'ready', products };
+          return {
+            status: 'ready',
+            products,
+            categories: this.productCategories(masterData.items),
+          };
         }),
         startWith({ status: 'loading' } as ProductsState),
         catchError(() =>
@@ -785,5 +814,9 @@ export class ProductsPageComponent {
 
   private paise(value: number): number {
     return Math.round((Number(value) || 0) * 100);
+  }
+
+  private productCategories(items: readonly MasterDataDto[]): string[] {
+    return masterValues(items, 'Product Category');
   }
 }

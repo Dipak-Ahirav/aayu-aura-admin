@@ -22,6 +22,7 @@ html {
 }
 
 :root {
+  --aa-font-family: 'Inter', Arial, sans-serif;
   --aa-bg: #fbf7f0;
   --aa-surface: #fffdf9;
   --aa-surface-strong: #ffffff;
@@ -45,7 +46,7 @@ body {
   min-height: 100vh;
   background: var(--aa-bg);
   color: var(--aa-text);
-  font-family: Inter, Arial, sans-serif;
+  font-family: var(--aa-font-family);
 }
 
 button,
@@ -57,9 +58,10 @@ textarea {
 
 .page-title {
   margin: 0;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(1.9rem, 4vw, 3rem);
-  line-height: 1.05;
+  font-family: var(--aa-font-family);
+  font-weight: 800;
+  font-size: clamp(1.65rem, 2.4vw, 2.35rem);
+  line-height: 1.12;
   letter-spacing: 0;
 }
 

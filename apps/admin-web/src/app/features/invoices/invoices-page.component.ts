@@ -9,12 +9,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import type { InvoiceDto, InvoiceStatus, InvoiceType, OrderDto } from '@aayu-aura/shared-types';
 import { BehaviorSubject, catchError, forkJoin, map, of, startWith, switchMap } from 'rxjs';
+import { MasterDataApiService } from '../master-data/master-data-api.service';
+import { masterValues } from '../master-data/master-data-registry';
 import { OrderApiService } from '../orders/order-api.service';
 import { InvoiceApiService } from './invoice-api.service';
 
 type InvoicesState =
   | { status: 'loading' }
-  | { status: 'ready'; invoices: InvoiceDto[]; orders: OrderDto[] }
+  | { status: 'ready'; invoices: InvoiceDto[]; orders: OrderDto[]; invoiceTypes: string[] }
   | { status: 'error'; message: string };
 
 type InvoiceStatusFilter = 'All' | InvoiceStatus;
@@ -109,7 +111,7 @@ type InvoiceStatusFilter = 'All' | InvoiceStatus;
             <mat-form-field appearance="outline">
               <mat-label>Invoice type</mat-label>
               <mat-select [(ngModel)]="invoiceType" name="invoiceType">
-                @for (type of invoiceTypes; track type) {
+                @for (type of state.invoiceTypes; track type) {
                   <mat-option [value]="type">{{ type }}</mat-option>
                 }
               </mat-select>
@@ -560,6 +562,7 @@ type InvoiceStatusFilter = 'All' | InvoiceStatus;
 export class InvoicesPageComponent {
   private readonly invoices = inject(InvoiceApiService);
   private readonly orders = inject(OrderApiService);
+  private readonly masterData = inject(MasterDataApiService);
   private readonly refreshTrigger = new BehaviorSubject<void>(undefined);
 
   readonly selectedInvoice = signal<InvoiceDto | null>(null);
@@ -569,25 +572,30 @@ export class InvoicesPageComponent {
   selectedOrderId = '';
   invoiceType: InvoiceType = 'Tax invoice';
   statusFilter: InvoiceStatusFilter = 'All';
-  readonly invoiceTypes: InvoiceType[] = [
-    'Tax invoice',
-    'Retail invoice',
-    'Proforma invoice',
-    'Quotation',
-    'Payment receipt',
-  ];
   readonly statusOptions: InvoiceStatusFilter[] = ['All', 'Draft', 'Finalised', 'Cancelled'];
   readonly state$ = this.refreshTrigger.pipe(
     switchMap(() =>
       forkJoin({
         invoices: this.invoices.listInvoices(),
         orders: this.orders.listOrders(),
+        masterData: this.masterData.listMasterData({
+          type: 'Finance',
+          status: 'active',
+          sort: 'sort_order',
+          page: 1,
+          pageSize: 100,
+        }),
       }).pipe(
-        map(({ invoices, orders }): InvoicesState => {
+        map(({ invoices, orders, masterData }): InvoicesState => {
           if (!this.selectedInvoice() && invoices[0]) {
             this.selectedInvoice.set(invoices[0]);
           }
-          return { status: 'ready', invoices, orders };
+          return {
+            status: 'ready',
+            invoices,
+            orders,
+            invoiceTypes: masterValues(masterData.items, 'Invoice Type'),
+          };
         }),
         startWith({ status: 'loading' } as InvoicesState),
         catchError(() =>

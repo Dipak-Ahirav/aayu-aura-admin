@@ -113,6 +113,104 @@ export interface BusinessSettingsDto {
   gstEnabled: boolean;
 }
 
+export type CustomerStatus = 'active' | 'inactive';
+
+export type CustomerType = string;
+
+export type CustomerSource = string;
+
+export interface CreateCustomerDto {
+  name: string;
+  mobile: string;
+  email?: string;
+  billingAddress?: string;
+  shippingAddress?: string;
+  state?: string;
+  stateCode?: string;
+  source?: CustomerSource;
+  customerType?: CustomerType;
+  consentWhatsApp?: boolean;
+  consentEmail?: boolean;
+  internalNotes?: string;
+}
+
+export type UpdateCustomerDto = Partial<CreateCustomerDto> & {
+  isActive?: boolean;
+};
+
+export interface CustomerDto extends CreateCustomerDto {
+  id: string;
+  isActive: boolean;
+  lifetimeValueInPaise: number;
+  outstandingInPaise: number;
+  orderCount: number;
+  lastPurchaseAt?: string;
+  createdAt: string;
+}
+
+export interface CustomerSummaryDto {
+  totalCustomers: number;
+  newThisMonth: number;
+  outstandingInPaise: number;
+  outstandingCustomers: number;
+  repeatBuyers: number;
+  inactiveCustomers: number;
+}
+
+export interface CustomerListDto {
+  items: CustomerDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: CustomerSummaryDto;
+}
+
+export type MasterDataType = 'Catalogue' | 'Inventory' | 'Finance' | 'Order setup';
+
+export type MasterDataStatus = 'active' | 'inactive' | 'protected';
+
+export interface CreateMasterDataDto {
+  master: string;
+  type: MasterDataType;
+  value: string;
+  code?: string;
+  description?: string;
+  sortOrder?: number;
+  status?: MasterDataStatus;
+  isProtected?: boolean;
+  usedByRecords?: number;
+}
+
+export type UpdateMasterDataDto = Partial<CreateMasterDataDto>;
+
+export interface MasterDataDto extends CreateMasterDataDto {
+  id: string;
+  status: MasterDataStatus;
+  isProtected: boolean;
+  usedByRecords: number;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface MasterDataSummaryDto {
+  masters: number;
+  activeValues: number;
+  inactiveValues: number;
+  protectedValues: number;
+  catalogueValues: number;
+  inventoryValues: number;
+  financeValues: number;
+  orderSetupValues: number;
+}
+
+export interface MasterDataListDto {
+  items: MasterDataDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: MasterDataSummaryDto;
+}
+
 export type OperationalModuleSlug =
   | 'products'
   | 'master-data'
@@ -209,15 +307,7 @@ export interface DashboardSummaryDto {
   collectionStatus: Record<string, boolean>;
 }
 
-export type OrderSource =
-  | 'Admin'
-  | 'WhatsApp'
-  | 'Instagram'
-  | 'Facebook'
-  | 'Phone'
-  | 'Offline'
-  | 'Marketplace'
-  | 'Referral';
+export type OrderSource = string;
 
 export type OrderPaymentStatus = 'Unpaid' | 'Partially paid' | 'Paid';
 
@@ -290,8 +380,7 @@ export interface OrderDto {
   createdAt: string;
 }
 
-export type InvoiceType =
-  'Tax invoice' | 'Retail invoice' | 'Proforma invoice' | 'Quotation' | 'Payment receipt';
+export type InvoiceType = string;
 
 export type InvoiceStatus = 'Draft' | 'Finalised' | 'Cancelled';
 
@@ -323,6 +412,41 @@ export interface InvoiceDto {
   dueAmountInPaise: number;
   invoiceDate: string;
   dueDate?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export type PaymentDirection = string;
+
+export type PaymentMethod = string;
+
+export type PaymentStatus = 'Recorded' | 'Reconciled' | 'Cancelled';
+
+export interface CreatePaymentDto {
+  direction: PaymentDirection;
+  orderId?: string;
+  invoiceId?: string;
+  amountInPaise: number;
+  method: PaymentMethod;
+  paymentDate?: string;
+  referenceNumber?: string;
+  notes?: string;
+}
+
+export interface PaymentDto {
+  id: string;
+  paymentNumber: string;
+  direction: PaymentDirection;
+  status: PaymentStatus;
+  orderId?: string;
+  orderNumber?: string;
+  invoiceId?: string;
+  invoiceNumber?: string;
+  customer?: CreateOrderDto['customer'];
+  amountInPaise: number;
+  method: PaymentMethod;
+  paymentDate: string;
+  referenceNumber?: string;
   notes?: string;
   createdAt: string;
 }

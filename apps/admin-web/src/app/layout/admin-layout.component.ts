@@ -100,7 +100,7 @@ const navItems: NavItem[] = [
       .shell {
         min-height: 100vh;
         display: grid;
-        grid-template-columns: 280px minmax(0, 1fr);
+        grid-template-columns: 264px minmax(0, 1fr);
         transition: grid-template-columns 180ms ease;
       }
 
@@ -112,7 +112,7 @@ const navItems: NavItem[] = [
         position: sticky;
         top: 0;
         height: 100vh;
-        padding: 24px 18px;
+        padding: 20px 16px;
         background: #2a1729;
         color: #fffaf2;
         overflow-y: auto;
@@ -123,7 +123,7 @@ const navItems: NavItem[] = [
         display: flex;
         gap: 12px;
         align-items: center;
-        margin-bottom: 32px;
+        margin-bottom: 24px;
       }
 
       .brand-copy,
@@ -138,19 +138,19 @@ const navItems: NavItem[] = [
       .brand span {
         display: block;
         color: rgba(255, 250, 242, 0.7);
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         margin-top: 3px;
       }
 
       .logo {
-        width: 48px;
-        height: 48px;
+        width: 42px;
+        height: 42px;
         display: grid;
         place-items: center;
         border: 1px solid rgba(255, 250, 242, 0.35);
         color: #f4d69c;
-        font-family: 'Playfair Display', Georgia, serif;
-        font-weight: 700;
+        font-family: var(--aa-font-family);
+        font-weight: 800;
       }
 
       .collapse-button {
@@ -193,7 +193,7 @@ const navItems: NavItem[] = [
       }
 
       nav a {
-        min-height: 40px;
+        min-height: 36px;
         display: flex;
         align-items: center;
         gap: 12px;
@@ -201,6 +201,7 @@ const navItems: NavItem[] = [
         color: rgba(255, 250, 242, 0.78);
         text-decoration: none;
         border-radius: 8px;
+        font-size: 0.9rem;
         font-weight: 600;
       }
 
@@ -227,12 +228,12 @@ const navItems: NavItem[] = [
         position: sticky;
         top: 0;
         z-index: 2;
-        min-height: 72px;
+        min-height: 62px;
         display: flex;
         align-items: center;
         gap: 16px;
         justify-content: space-between;
-        padding: 0 28px;
+        padding: 0 22px;
         background: rgba(251, 247, 240, 0.88);
         backdrop-filter: blur(16px);
         border-bottom: 1px solid var(--aa-border);
@@ -245,7 +246,11 @@ const navItems: NavItem[] = [
       .topbar span {
         display: block;
         margin-top: 2px;
-        font-size: 0.84rem;
+        font-size: 0.78rem;
+      }
+
+      .topbar strong {
+        font-size: 0.96rem;
       }
 
       .menu-button {
@@ -253,7 +258,7 @@ const navItems: NavItem[] = [
       }
 
       main {
-        padding: 28px;
+        padding: 20px 22px;
       }
 
       @media (max-width: 900px) {

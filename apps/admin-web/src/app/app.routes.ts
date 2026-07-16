@@ -35,9 +35,30 @@ export const routes: Routes = [
           import('./features/orders/new-order.component').then((m) => m.NewOrderComponent),
       },
       {
+        path: 'customers',
+        loadComponent: () =>
+          import('./features/customers/customers-page.component').then(
+            (m) => m.CustomersPageComponent,
+          ),
+      },
+      {
         path: 'orders',
         loadComponent: () =>
           import('./features/orders/orders-page.component').then((m) => m.OrdersPageComponent),
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/payments/payments-page.component').then(
+            (m) => m.PaymentsPageComponent,
+          ),
+      },
+      {
+        path: 'master-data',
+        loadComponent: () =>
+          import('./features/master-data/master-data-page.component').then(
+            (m) => m.MasterDataPageComponent,
+          ),
       },
       {
         path: 'invoices',

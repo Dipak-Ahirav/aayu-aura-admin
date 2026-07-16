@@ -58,7 +58,7 @@ const invoiceSchema = new Schema<InvoiceDocument>(
     type: {
       type: String,
       required: true,
-      enum: ['Tax invoice', 'Retail invoice', 'Proforma invoice', 'Quotation', 'Payment receipt'],
+      trim: true,
       index: true,
     },
     status: {

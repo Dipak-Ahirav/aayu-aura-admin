@@ -126,15 +126,15 @@ type PageState =
     `
       .operations-page {
         display: grid;
-        gap: 22px;
+        gap: 16px;
       }
 
       .hero {
         display: flex;
-        gap: 24px;
+        gap: 20px;
         align-items: flex-end;
         justify-content: space-between;
-        padding: clamp(24px, 5vw, 44px);
+        padding: clamp(18px, 3vw, 28px);
         border-radius: 8px;
         border: 1px solid var(--aa-border);
         background:
@@ -143,27 +143,29 @@ type PageState =
       }
 
       .breadcrumb {
-        margin: 0 0 14px;
+        margin: 0 0 10px;
         color: var(--aa-maroon);
-        font-size: 0.84rem;
+        font-size: 0.78rem;
         font-weight: 700;
       }
 
       .hero .muted {
-        max-width: 760px;
-        margin: 14px 0 0;
-        line-height: 1.7;
+        max-width: 640px;
+        margin: 10px 0 0;
+        font-size: 0.95rem;
+        line-height: 1.55;
       }
 
       .hero-actions {
         display: flex;
         flex-wrap: wrap;
         justify-content: flex-end;
-        gap: 12px;
+        gap: 10px;
       }
 
       .hero-actions button {
-        min-height: 42px;
+        min-height: 38px;
+        font-size: 0.9rem;
       }
 
       .hero-actions button.secondary {
@@ -173,7 +175,7 @@ type PageState =
       .metrics {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
+        gap: 12px;
       }
 
       .metrics article,
@@ -186,21 +188,21 @@ type PageState =
       }
 
       .metrics article {
-        min-height: 118px;
+        min-height: 94px;
         display: grid;
         align-content: space-between;
-        padding: 18px;
+        padding: 14px 16px;
         border-top-width: 4px;
       }
 
       .metrics span {
         color: var(--aa-muted);
-        font-size: 0.88rem;
+        font-size: 0.8rem;
         font-weight: 700;
       }
 
       .metrics strong {
-        font-size: 1.45rem;
+        font-size: 1.25rem;
       }
 
       .metrics .maroon {
@@ -228,13 +230,14 @@ type PageState =
 
       .tabs button,
       .filter-strip button {
-        min-height: 36px;
+        min-height: 32px;
         border: 1px solid var(--aa-border);
         background: var(--aa-surface);
         color: var(--aa-text);
         border-radius: 999px;
-        padding: 0 13px;
+        padding: 0 12px;
         white-space: nowrap;
+        font-size: 0.88rem;
         font-weight: 700;
       }
 
@@ -257,24 +260,25 @@ type PageState =
       }
 
       .table-panel {
-        padding: 22px;
+        padding: 18px;
       }
 
       .panel-heading {
         display: grid;
-        gap: 16px;
-        margin-bottom: 18px;
+        gap: 12px;
+        margin-bottom: 14px;
       }
 
       h2 {
         margin: 0 0 6px;
-        font-size: 1.08rem;
+        font-size: 1rem;
       }
 
       p {
         margin: 0;
         color: var(--aa-muted);
-        line-height: 1.55;
+        font-size: 0.92rem;
+        line-height: 1.48;
       }
 
       .table-wrap {
@@ -290,14 +294,14 @@ type PageState =
       th,
       td {
         text-align: left;
-        padding: 14px 12px;
+        padding: 11px 10px;
         border-bottom: 1px solid var(--aa-border);
-        font-size: 0.92rem;
+        font-size: 0.86rem;
       }
 
       th {
         color: var(--aa-muted);
-        font-size: 0.78rem;
+        font-size: 0.72rem;
         text-transform: uppercase;
         letter-spacing: 0;
       }
