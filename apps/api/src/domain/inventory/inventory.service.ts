@@ -7,6 +7,7 @@ import type {
   StockMovementDto,
 } from '@aayu-aura/shared-types';
 import { AppError } from '../../infrastructure/http/app-error.js';
+import { recordAudit } from '../audit-logs/audit-recorder.js';
 import { ProductModel, type ProductDocument } from '../products/product.model.js';
 import { StockMovementModel, type StockMovementDocument } from './stock-movement.model.js';
 import type {
@@ -244,10 +245,39 @@ export class InventoryService {
       createdBy: userId ? new Types.ObjectId(userId) : undefined,
     });
 
-    return movementToDto(movement);
+    const dto = movementToDto(movement);
+    await recordAudit({
+      module: 'Inventory',
+      action: 'Create stock movement',
+      entity: 'StockMovement',
+      entityId: dto.id,
+      userId,
+      previousValue: {
+        productId: product._id.toString(),
+        physicalStock: previousPhysicalStock,
+        reservedStock: previousReservedStock,
+      },
+      newValue: {
+        productId: product._id.toString(),
+        physicalStock: newPhysicalStock,
+        reservedStock: newReservedStock,
+      },
+      severity: input.movementType === 'damage' ? 'Warning' : 'Info',
+      metadata: { movementType: input.movementType, direction: input.direction },
+    });
+    return dto;
   }
 
-  async updateMovement(id: string, input: UpdateStockMovementInput): Promise<StockMovementDto> {
+  async updateMovement(
+    id: string,
+    input: UpdateStockMovementInput,
+    userId?: string,
+  ): Promise<StockMovementDto> {
+    const existing = await StockMovementModel.findOne({ _id: id, reversedAt: { $exists: false } });
+    if (!existing) {
+      throw new AppError(404, 'STOCK_MOVEMENT_NOT_FOUND', 'Stock movement was not found.');
+    }
+    const previous = movementToDto(existing);
     const movement = await StockMovementModel.findOneAndUpdate(
       { _id: id, reversedAt: { $exists: false } },
       {
@@ -263,10 +293,20 @@ export class InventoryService {
     if (!movement) {
       throw new AppError(404, 'STOCK_MOVEMENT_NOT_FOUND', 'Stock movement was not found.');
     }
-    return movementToDto(movement);
+    const dto = movementToDto(movement);
+    await recordAudit({
+      module: 'Inventory',
+      action: 'Update stock movement',
+      entity: 'StockMovement',
+      entityId: dto.id,
+      userId,
+      previousValue: previous as unknown as Record<string, unknown>,
+      newValue: dto as unknown as Record<string, unknown>,
+    });
+    return dto;
   }
 
-  async reverseMovement(id: string): Promise<StockMovementDto> {
+  async reverseMovement(id: string, userId?: string): Promise<StockMovementDto> {
     const movement = await StockMovementModel.findOne({ _id: id, reversedAt: { $exists: false } });
     if (!movement) {
       throw new AppError(404, 'STOCK_MOVEMENT_NOT_FOUND', 'Stock movement was not found.');
@@ -283,6 +323,25 @@ export class InventoryService {
     movement.reversedAt = new Date();
     await movement.save();
 
-    return movementToDto(movement);
+    const dto = movementToDto(movement);
+    await recordAudit({
+      module: 'Inventory',
+      action: 'Reverse stock movement',
+      entity: 'StockMovement',
+      entityId: dto.id,
+      userId,
+      previousValue: {
+        productId: product._id.toString(),
+        physicalStock: dto.newPhysicalStock,
+        reservedStock: dto.newReservedStock,
+      },
+      newValue: {
+        productId: product._id.toString(),
+        physicalStock: product.currentPhysicalStock,
+        reservedStock: product.reservedStock,
+      },
+      severity: 'Warning',
+    });
+    return dto;
   }
 }

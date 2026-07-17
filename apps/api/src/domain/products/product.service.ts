@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import type { AdminProductDto } from '@aayu-aura/shared-types';
+import { recordAudit } from '../audit-logs/audit-recorder.js';
 import { AppError } from '../../infrastructure/http/app-error.js';
 import { ProductModel, type ProductDocument } from './product.model.js';
 import type { CreateProductInput, UpdateProductInput } from './product.schemas.js';
@@ -85,7 +86,16 @@ export class ProductService {
     }
 
     const product = await ProductModel.create(createPayload(input, userId));
-    return toDto(product);
+    const dto = toDto(product);
+    await recordAudit({
+      module: 'Products',
+      action: 'Create product',
+      entity: 'Product',
+      entityId: dto.id,
+      userId,
+      newValue: dto as unknown as Record<string, unknown>,
+    });
+    return dto;
   }
 
   async list(): Promise<AdminProductDto[]> {
@@ -93,7 +103,12 @@ export class ProductService {
     return products.map((product) => toDto(product));
   }
 
-  async update(id: string, input: UpdateProductInput): Promise<AdminProductDto> {
+  async update(id: string, input: UpdateProductInput, userId?: string): Promise<AdminProductDto> {
+    const existing = await ProductModel.findById(id);
+    if (!existing) {
+      throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product was not found.');
+    }
+    const previous = toDto(existing);
     const payload = updatePayload(input);
     if (payload.currentPhysicalStock !== undefined && payload.reservedStock !== undefined) {
       payload.reservedStock = Math.min(payload.reservedStock, payload.currentPhysicalStock);
@@ -109,6 +124,16 @@ export class ProductService {
       await product.save();
     }
 
-    return toDto(product);
+    const dto = toDto(product);
+    await recordAudit({
+      module: 'Products',
+      action: 'Update product',
+      entity: 'Product',
+      entityId: dto.id,
+      userId,
+      previousValue: previous as unknown as Record<string, unknown>,
+      newValue: dto as unknown as Record<string, unknown>,
+    });
+    return dto;
   }
 }

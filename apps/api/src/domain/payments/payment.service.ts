@@ -4,6 +4,7 @@ import { CounterModel } from '../counters/counter.model.js';
 import { InvoiceModel } from '../invoices/invoice.model.js';
 import { OrderModel, type OrderDocument } from '../orders/order.model.js';
 import { AppError } from '../../infrastructure/http/app-error.js';
+import { recordAudit } from '../audit-logs/audit-recorder.js';
 import { PaymentModel, type PaymentDocument } from './payment.model.js';
 import type { CreatePaymentInput } from './payment.schemas.js';
 
@@ -134,7 +135,21 @@ export class PaymentService {
 
     await updateOrderPayment(order);
 
-    return toDto(payment);
+    const dto = toDto(payment);
+    await recordAudit({
+      module: 'Payments',
+      action: 'Create payment',
+      entity: 'Payment',
+      entityId: dto.id,
+      userId,
+      newValue: dto as unknown as Record<string, unknown>,
+      metadata: {
+        orderId: dto.orderId,
+        invoiceId: dto.invoiceId,
+        paymentNumber: dto.paymentNumber,
+      },
+    });
+    return dto;
   }
 
   async list(): Promise<PaymentDto[]> {

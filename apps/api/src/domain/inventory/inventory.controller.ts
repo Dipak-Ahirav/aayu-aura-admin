@@ -32,7 +32,13 @@ export const updateStockMovement: RequestHandler = async (req, res, next) => {
     const id = req.params['id'];
     const input = updateStockMovementSchema.parse(req.body);
     res.json(
-      ok(await inventoryService.updateMovement(Array.isArray(id) ? id[0] : (id ?? ''), input)),
+      ok(
+        await inventoryService.updateMovement(
+          Array.isArray(id) ? id[0] : (id ?? ''),
+          input,
+          req.userId,
+        ),
+      ),
     );
   } catch (error) {
     next(error);
@@ -42,7 +48,11 @@ export const updateStockMovement: RequestHandler = async (req, res, next) => {
 export const reverseStockMovement: RequestHandler = async (req, res, next) => {
   try {
     const id = req.params['id'];
-    res.json(ok(await inventoryService.reverseMovement(Array.isArray(id) ? id[0] : (id ?? ''))));
+    res.json(
+      ok(
+        await inventoryService.reverseMovement(Array.isArray(id) ? id[0] : (id ?? ''), req.userId),
+      ),
+    );
   } catch (error) {
     next(error);
   }

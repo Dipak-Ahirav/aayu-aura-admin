@@ -3,6 +3,7 @@ import type { InvoiceDto } from '@aayu-aura/shared-types';
 import { CounterModel } from '../counters/counter.model.js';
 import { OrderModel } from '../orders/order.model.js';
 import { AppError } from '../../infrastructure/http/app-error.js';
+import { recordAudit } from '../audit-logs/audit-recorder.js';
 import { InvoiceModel, type InvoiceDocument } from './invoice.model.js';
 import { renderInvoicePdf } from './invoice-pdf.service.js';
 import type { CreateInvoiceInput } from './invoice.schemas.js';
@@ -110,7 +111,17 @@ export class InvoiceService {
       createdBy: userId ? new Types.ObjectId(userId) : undefined,
     });
 
-    return toDto(invoice);
+    const dto = toDto(invoice);
+    await recordAudit({
+      module: 'Invoices',
+      action: 'Create invoice',
+      entity: 'Invoice',
+      entityId: dto.id,
+      userId,
+      newValue: dto as unknown as Record<string, unknown>,
+      metadata: { orderId: dto.orderId, invoiceNumber: dto.invoiceNumber },
+    });
+    return dto;
   }
 
   async list(): Promise<InvoiceDto[]> {

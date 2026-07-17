@@ -27,7 +27,9 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
   try {
     const id = req.params['id'];
     const input = updateProductSchema.parse(req.body);
-    res.json(ok(await productService.update(Array.isArray(id) ? id[0] : (id ?? ''), input)));
+    res.json(
+      ok(await productService.update(Array.isArray(id) ? id[0] : (id ?? ''), input, req.userId)),
+    );
   } catch (error) {
     next(error);
   }

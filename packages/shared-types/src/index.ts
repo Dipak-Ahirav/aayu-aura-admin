@@ -34,6 +34,100 @@ export interface UserProfileDto {
   isActive: boolean;
 }
 
+export interface AdminUserDto extends UserProfileDto {
+  failedLoginAttempts: number;
+  lastLoginAt?: string;
+  createdAt: string;
+}
+
+export interface CreateAdminUserDto {
+  name: string;
+  email: string;
+  role: UserRole;
+  temporaryPassword: string;
+  isActive?: boolean;
+}
+
+export type UpdateAdminUserDto = Partial<Omit<CreateAdminUserDto, 'temporaryPassword'>> & {
+  temporaryPassword?: string;
+};
+
+export interface RolePermissionDto {
+  role: UserRole;
+  permissions: PermissionDto[];
+}
+
+export interface UserManagementSummaryDto {
+  activeUsers: number;
+  roles: number;
+  inactiveUsers: number;
+  owners: number;
+  totalUsers: number;
+  permissions: number;
+}
+
+export interface UserManagementListDto {
+  items: AdminUserDto[];
+  roles: RolePermissionDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: UserManagementSummaryDto;
+}
+
+export type AuditModule =
+  | 'Auth'
+  | 'Products'
+  | 'Inventory'
+  | 'Invoices'
+  | 'Payments'
+  | 'Users'
+  | 'Exports'
+  | 'Settings'
+  | 'Orders'
+  | 'Finance';
+
+export type AuditSeverity = 'Info' | 'Warning' | 'Critical';
+
+export interface CreateAuditLogDto {
+  module: AuditModule;
+  action: string;
+  entity: string;
+  entityId?: string;
+  userName?: string;
+  userEmail?: string;
+  previousValue?: Record<string, unknown>;
+  newValue?: Record<string, unknown>;
+  severity?: AuditSeverity;
+  metadata?: Record<string, unknown>;
+}
+
+export interface AuditLogDto extends CreateAuditLogDto {
+  id: string;
+  userName: string;
+  severity: AuditSeverity;
+  reviewed: boolean;
+  reviewedAt?: string;
+  createdAt: string;
+}
+
+export interface AuditLogSummaryDto {
+  eventsToday: number;
+  security: number;
+  inventory: number;
+  finance: number;
+  totalEvents: number;
+  critical: number;
+}
+
+export interface AuditLogListDto {
+  items: AuditLogDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: AuditLogSummaryDto;
+}
+
 export interface ApiSuccess<TData, TMeta = Record<string, unknown>> {
   success: true;
   data: TData;
@@ -190,6 +284,65 @@ export interface BusinessSettingsDto {
   timeZone: 'Asia/Kolkata';
   financialYearStartMonth: 4;
   gstEnabled: boolean;
+  gstin?: string;
+  pan?: string;
+  address?: string;
+  state?: string;
+  stateCode?: string;
+  email?: string;
+  phone?: string;
+  invoicePrefix?: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  bankIfsc?: string;
+  upiId?: string;
+  invoiceFooter?: string;
+  allowNegativeStock?: boolean;
+  lowStockAlertEnabled?: boolean;
+  emailProvider?: string;
+  whatsappProvider?: string;
+  updatedAt?: string;
+}
+
+export interface UpdateBusinessSettingsDto extends Partial<BusinessSettingsDto> {}
+
+export type SettingsBackupStatus = 'Generated' | 'Failed' | 'Archived';
+
+export interface SettingsBackupDto {
+  id: string;
+  backupNumber: string;
+  status: SettingsBackupStatus;
+  collections: string[];
+  records: number;
+  fileName: string;
+  generatedAt: string;
+  createdAt: string;
+}
+
+export interface SettingsSectionDto {
+  section: string;
+  configured: string;
+  critical: boolean;
+  status: string;
+}
+
+export interface SettingsSummaryDto {
+  businessProfile: string;
+  gst: string;
+  whatsapp: string;
+  email: string;
+  sections: number;
+  backups: number;
+}
+
+export interface SettingsListDto {
+  business: BusinessSettingsDto;
+  sections: SettingsSectionDto[];
+  backups: SettingsBackupDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: SettingsSummaryDto;
 }
 
 export type CustomerStatus = 'active' | 'inactive';
@@ -816,6 +969,82 @@ export interface ReportsListDto {
   page: number;
   pageSize: number;
   summary: ReportsSummaryDto;
+}
+
+export type AccountingVoucherType =
+  | 'Sales'
+  | 'Purchase'
+  | 'Receipt'
+  | 'Payment'
+  | 'Debit Note'
+  | 'Credit Note'
+  | 'Journal'
+  | 'Stock Journal';
+
+export type AccountingExportFormat = 'XML' | 'CSV' | 'Excel' | 'JSON';
+
+export type AccountingExportStatus = 'Validation pending' | 'Generated' | 'Failed' | 'Archived';
+
+export interface CreateLedgerMappingDto {
+  sourceType: string;
+  sourceValue: string;
+  tallyLedgerName: string;
+  voucherType: AccountingVoucherType;
+  taxLedgerName?: string;
+  isActive?: boolean;
+  notes?: string;
+}
+
+export type UpdateLedgerMappingDto = Partial<CreateLedgerMappingDto>;
+
+export interface LedgerMappingDto extends CreateLedgerMappingDto {
+  id: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface CreateAccountingExportDto {
+  fromDate?: string;
+  toDate?: string;
+  format: AccountingExportFormat;
+  voucherType?: 'all' | AccountingVoucherType;
+  notes?: string;
+}
+
+export type UpdateAccountingExportDto = Partial<CreateAccountingExportDto> & {
+  status?: AccountingExportStatus;
+};
+
+export interface AccountingExportDto {
+  id: string;
+  exportNumber: string;
+  fromDate: string;
+  toDate: string;
+  format: AccountingExportFormat;
+  voucherType: 'all' | AccountingVoucherType;
+  records: number;
+  status: AccountingExportStatus;
+  fileName?: string;
+  notes?: string;
+  generatedAt: string;
+  createdAt: string;
+}
+
+export interface AccountingExportSummaryDto {
+  mappedLedgers: number;
+  pendingMappings: number;
+  exports: number;
+  readyRecords: number;
+  errors: number;
+}
+
+export interface AccountingExportListDto {
+  mappings: LedgerMappingDto[];
+  exports: AccountingExportDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: AccountingExportSummaryDto;
 }
 
 export type InvoiceType = string;

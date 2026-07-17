@@ -3,6 +3,7 @@ import type { OrderDto, OrderItemDto, OrderPaymentStatus } from '@aayu-aura/shar
 import { CounterModel } from '../counters/counter.model.js';
 import { CustomerModel } from '../customers/customer.model.js';
 import { AppError } from '../../infrastructure/http/app-error.js';
+import { recordAudit } from '../audit-logs/audit-recorder.js';
 import { OrderModel, type OrderDocument } from './order.model.js';
 import type { CreateOrderInput } from './order.schemas.js';
 
@@ -161,7 +162,17 @@ export class OrderService {
       createdBy: userId ? new Types.ObjectId(userId) : undefined,
     });
 
-    return toDto(order);
+    const dto = toDto(order);
+    await recordAudit({
+      module: 'Orders',
+      action: 'Create order',
+      entity: 'Order',
+      entityId: dto.id,
+      userId,
+      newValue: dto as unknown as Record<string, unknown>,
+      metadata: { orderNumber: dto.orderNumber, customerMobile: dto.customer.mobile },
+    });
+    return dto;
   }
 
   async list(): Promise<OrderDto[]> {

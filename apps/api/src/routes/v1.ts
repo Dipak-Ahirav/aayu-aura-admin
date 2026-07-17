@@ -1,4 +1,21 @@
 import { Router } from 'express';
+import {
+  archiveAccountingExport,
+  createAccountingExport,
+  createLedgerMapping,
+  deactivateLedgerMapping,
+  downloadAccountingExport,
+  listAccountingExports,
+  updateAccountingExport,
+  updateLedgerMapping,
+} from '../domain/accounting-exports/accounting-export.controller.js';
+import {
+  createAuditLog,
+  exportAuditLogs,
+  getAuditLog,
+  listAuditLogs,
+  reviewAuditLog,
+} from '../domain/audit-logs/audit-log.controller.js';
 import { login, me } from '../domain/auth/auth.controller.js';
 import {
   createCustomer,
@@ -63,6 +80,13 @@ import {
   updateShipment,
 } from '../domain/shipping/shipping.controller.js';
 import {
+  createSettingsBackup,
+  downloadSettingsBackup,
+  getBusinessSettings,
+  listSettings,
+  updateBusinessSettings,
+} from '../domain/settings/settings.controller.js';
+import {
   cancelReturn,
   createExchange,
   createReturn,
@@ -86,6 +110,13 @@ import {
   listSuppliers,
   updateSupplier,
 } from '../domain/suppliers/supplier.controller.js';
+import {
+  createUser,
+  deactivateUser,
+  getUser,
+  listUsers,
+  updateUser,
+} from '../domain/users/user.controller.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { ok } from '../infrastructure/http/api-response.js';
 
@@ -164,19 +195,28 @@ v1Router.post('/reports', authenticate, createReport);
 v1Router.get('/reports/:id', authenticate, getReport);
 v1Router.patch('/reports/:id', authenticate, updateReport);
 v1Router.delete('/reports/:id', authenticate, archiveReport);
+v1Router.get('/accounting-exports', authenticate, listAccountingExports);
+v1Router.post('/accounting-exports', authenticate, createAccountingExport);
+v1Router.get('/accounting-exports/:id/file', authenticate, downloadAccountingExport);
+v1Router.patch('/accounting-exports/:id', authenticate, updateAccountingExport);
+v1Router.delete('/accounting-exports/:id', authenticate, archiveAccountingExport);
+v1Router.post('/accounting-mappings', authenticate, createLedgerMapping);
+v1Router.patch('/accounting-mappings/:id', authenticate, updateLedgerMapping);
+v1Router.delete('/accounting-mappings/:id', authenticate, deactivateLedgerMapping);
+v1Router.get('/users', authenticate, listUsers);
+v1Router.post('/users', authenticate, createUser);
+v1Router.get('/users/:id', authenticate, getUser);
+v1Router.patch('/users/:id', authenticate, updateUser);
+v1Router.delete('/users/:id', authenticate, deactivateUser);
+v1Router.get('/audit-logs', authenticate, listAuditLogs);
+v1Router.get('/audit-logs/export', authenticate, exportAuditLogs);
+v1Router.post('/audit-logs', authenticate, createAuditLog);
+v1Router.get('/audit-logs/:id', authenticate, getAuditLog);
+v1Router.patch('/audit-logs/:id/review', authenticate, reviewAuditLog);
+v1Router.get('/settings', authenticate, listSettings);
+v1Router.get('/settings/business', authenticate, getBusinessSettings);
+v1Router.patch('/settings/business', authenticate, updateBusinessSettings);
+v1Router.post('/settings/backups', authenticate, createSettingsBackup);
+v1Router.get('/settings/backups/:id/file', authenticate, downloadSettingsBackup);
 v1Router.get('/module-overviews', authenticate, listModuleOverviews);
 v1Router.get('/module-overviews/:slug', authenticate, getModuleOverviewBySlug);
-
-v1Router.get('/settings/business', authenticate, (_req, res) => {
-  res.json(
-    ok({
-      displayName: 'Aayu & Aura',
-      legalName: 'Aayu & Aura',
-      currency: 'INR',
-      locale: 'en-IN',
-      timeZone: 'Asia/Kolkata',
-      financialYearStartMonth: 4,
-      gstEnabled: false,
-    }),
-  );
-});

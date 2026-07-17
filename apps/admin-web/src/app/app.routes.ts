@@ -87,6 +87,30 @@ export const routes: Routes = [
           import('./features/reports/reports-page.component').then((m) => m.ReportsPageComponent),
       },
       {
+        path: 'accounting-exports',
+        loadComponent: () =>
+          import('./features/accounting-exports/accounting-exports-page.component').then(
+            (m) => m.AccountingExportsPageComponent,
+          ),
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./features/users/users-page.component').then((m) => m.UsersPageComponent),
+      },
+      {
+        path: 'audit-logs',
+        loadComponent: () =>
+          import('./features/audit-logs/audit-logs-page.component').then(
+            (m) => m.AuditLogsPageComponent,
+          ),
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/settings/settings.component').then((m) => m.SettingsComponent),
+      },
+      {
         path: 'orders',
         loadComponent: () =>
           import('./features/orders/orders-page.component').then((m) => m.OrdersPageComponent),
