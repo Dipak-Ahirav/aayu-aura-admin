@@ -174,6 +174,7 @@ type InvoiceStatusFilter = 'All' | InvoiceStatus;
                         <th>Due</th>
                         <th>Status</th>
                         <th>Date</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -208,6 +209,16 @@ type InvoiceStatusFilter = 'All' | InvoiceStatus;
                             <span class="status">{{ invoice.status }}</span>
                           </td>
                           <td>{{ invoice.invoiceDate | date: 'mediumDate' }}</td>
+                          <td class="row-actions">
+                            <button
+                              mat-icon-button
+                              type="button"
+                              aria-label="Download invoice PDF"
+                              (click)="downloadPdf(invoice); $event.stopPropagation()"
+                            >
+                              <mat-icon>download</mat-icon>
+                            </button>
+                          </td>
                         </tr>
                       }
                     </tbody>
@@ -227,6 +238,10 @@ type InvoiceStatusFilter = 'All' | InvoiceStatus;
                 <article>
                   <h2>{{ invoice.invoiceNumber }}</h2>
                   <p class="muted">{{ invoice.customer.name }} / {{ invoice.orderNumber }}</p>
+                  <button mat-stroked-button type="button" (click)="downloadPdf(invoice)">
+                    <mat-icon>download</mat-icon>
+                    Download PDF
+                  </button>
                   <dl>
                     <div>
                       <dt>Status</dt>
@@ -431,7 +446,7 @@ type InvoiceStatusFilter = 'All' | InvoiceStatus;
       }
       table {
         width: 100%;
-        min-width: 920px;
+        min-width: 980px;
         border-collapse: collapse;
       }
       th,
@@ -469,6 +484,9 @@ type InvoiceStatusFilter = 'All' | InvoiceStatus;
         background: rgba(123, 31, 53, 0.08);
         color: var(--aa-maroon);
         font-weight: 700;
+      }
+      .row-actions {
+        white-space: nowrap;
       }
       .detail-panel {
         display: grid;
@@ -630,6 +648,21 @@ export class InvoicesPageComponent {
           this.error.set('Invoice could not be created. It may already exist for this order/type.');
         },
       });
+  }
+
+  downloadPdf(invoice: InvoiceDto): void {
+    this.error.set(null);
+    this.invoices.downloadInvoicePdf(invoice.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${invoice.invoiceNumber.replace(/[^a-zA-Z0-9-]+/g, '-')}.pdf`;
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => this.error.set('Invoice PDF could not be downloaded.'),
+    });
   }
 
   filteredInvoices(invoices: readonly InvoiceDto[]): InvoiceDto[] {

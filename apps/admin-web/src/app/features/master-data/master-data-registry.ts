@@ -57,6 +57,12 @@ export const MASTER_DEFINITIONS: MasterDefinition[] = [
     fallbackValues: ['Retail', 'Wholesale', 'VIP'],
   },
   {
+    type: 'Order setup',
+    master: 'Courier Provider',
+    usedIn: 'Shipping / Courier',
+    fallbackValues: ['Delhivery', 'Bluedart', 'DTDC', 'India Post', 'Other'],
+  },
+  {
     type: 'Finance',
     master: 'Payment Direction',
     usedIn: 'Payments / Direction',
@@ -67,6 +73,12 @@ export const MASTER_DEFINITIONS: MasterDefinition[] = [
     master: 'Payment Method',
     usedIn: 'Payments / Method',
     fallbackValues: ['UPI', 'Cash', 'Card', 'Bank transfer', 'Cheque', 'Wallet', 'Other'],
+  },
+  {
+    type: 'Finance',
+    master: 'Expense Category',
+    usedIn: 'Expenses / Category',
+    fallbackValues: ['Marketing', 'Packaging', 'Courier', 'Rent', 'Utilities', 'Salary', 'Other'],
   },
   {
     type: 'Finance',

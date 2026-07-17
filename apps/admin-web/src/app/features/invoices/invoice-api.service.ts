@@ -19,4 +19,10 @@ export class InvoiceApiService {
       .post<ApiSuccess<InvoiceDto>>(`${environment.apiBaseUrl}/invoices`, invoice)
       .pipe(map((response) => response.data));
   }
+
+  downloadInvoicePdf(id: string) {
+    return this.http.get(`${environment.apiBaseUrl}/invoices/${id}/pdf`, {
+      responseType: 'blob',
+    });
+  }
 }

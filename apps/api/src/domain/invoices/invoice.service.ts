@@ -4,6 +4,7 @@ import { CounterModel } from '../counters/counter.model.js';
 import { OrderModel } from '../orders/order.model.js';
 import { AppError } from '../../infrastructure/http/app-error.js';
 import { InvoiceModel, type InvoiceDocument } from './invoice.model.js';
+import { renderInvoicePdf } from './invoice-pdf.service.js';
 import type { CreateInvoiceInput } from './invoice.schemas.js';
 
 function cleanEmpty(value: string | undefined): string | undefined {
@@ -123,5 +124,14 @@ export class InvoiceService {
       throw new AppError(404, 'INVOICE_NOT_FOUND', 'Invoice was not found.');
     }
     return toDto(invoice);
+  }
+
+  async renderPdf(id: string): Promise<{ filename: string; content: Buffer }> {
+    const invoice = await this.getById(id);
+    const safeNumber = invoice.invoiceNumber.replace(/[^a-zA-Z0-9-]+/g, '-');
+    return {
+      filename: `${safeNumber}.pdf`,
+      content: renderInvoicePdf(invoice),
+    };
   }
 }

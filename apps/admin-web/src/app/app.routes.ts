@@ -42,6 +42,51 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'suppliers',
+        loadComponent: () =>
+          import('./features/suppliers/suppliers-page.component').then(
+            (m) => m.SuppliersPageComponent,
+          ),
+      },
+      {
+        path: 'purchases',
+        loadComponent: () =>
+          import('./features/purchases/purchases-page.component').then(
+            (m) => m.PurchasesPageComponent,
+          ),
+      },
+      {
+        path: 'inventory',
+        loadComponent: () =>
+          import('./features/inventory/inventory-page.component').then(
+            (m) => m.InventoryPageComponent,
+          ),
+      },
+      {
+        path: 'shipping',
+        loadComponent: () =>
+          import('./features/shipping/shipping-page.component').then(
+            (m) => m.ShippingPageComponent,
+          ),
+      },
+      {
+        path: 'returns',
+        loadComponent: () =>
+          import('./features/returns/returns-page.component').then((m) => m.ReturnsPageComponent),
+      },
+      {
+        path: 'expenses',
+        loadComponent: () =>
+          import('./features/expenses/expenses-page.component').then(
+            (m) => m.ExpensesPageComponent,
+          ),
+      },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./features/reports/reports-page.component').then((m) => m.ReportsPageComponent),
+      },
+      {
         path: 'orders',
         loadComponent: () =>
           import('./features/orders/orders-page.component').then((m) => m.OrdersPageComponent),

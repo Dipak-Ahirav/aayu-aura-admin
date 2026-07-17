@@ -31,3 +31,16 @@ export const getInvoice: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+export const downloadInvoicePdf: RequestHandler = async (req, res, next) => {
+  try {
+    const id = req.params['id'];
+    const pdf = await invoiceService.renderPdf(Array.isArray(id) ? id[0] : (id ?? ''));
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${pdf.filename}"`);
+    res.setHeader('Content-Length', pdf.content.length);
+    res.send(pdf.content);
+  } catch (error) {
+    next(error);
+  }
+};

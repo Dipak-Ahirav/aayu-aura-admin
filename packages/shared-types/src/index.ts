@@ -93,6 +93,85 @@ export interface CreateProductDto {
 
 export type UpdateProductDto = Partial<CreateProductDto>;
 
+export type InventorySegment = 'all' | 'low_stock' | 'transactions' | 'reservations';
+
+export type InventoryStockStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
+
+export type StockMovementType =
+  'adjustment' | 'damage' | 'return' | 'reservation' | 'release' | 'purchase_receipt';
+
+export type StockMovementDirection = 'in' | 'out';
+
+export interface InventoryStockItemDto {
+  productId: string;
+  name: string;
+  sku: string;
+  category?: string;
+  warehouse?: string;
+  physicalStock: number;
+  reservedStock: number;
+  availableStock: number;
+  reorderLevel: number;
+  damagedStock: number;
+  returnedStock: number;
+  stockStatus: InventoryStockStatus;
+  updatedAt?: string;
+}
+
+export interface StockMovementDto {
+  id: string;
+  productId: string;
+  productName: string;
+  sku: string;
+  warehouse?: string;
+  movementType: StockMovementType;
+  direction: StockMovementDirection;
+  quantity: number;
+  previousPhysicalStock: number;
+  newPhysicalStock: number;
+  previousReservedStock: number;
+  newReservedStock: number;
+  reason?: string;
+  reference?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface CreateStockMovementDto {
+  productId: string;
+  warehouse?: string;
+  movementType: StockMovementType;
+  direction: StockMovementDirection;
+  quantity: number;
+  reason?: string;
+  reference?: string;
+  notes?: string;
+}
+
+export type UpdateStockMovementDto = Partial<
+  Pick<CreateStockMovementDto, 'warehouse' | 'reason' | 'reference' | 'notes'>
+>;
+
+export interface InventorySummaryDto {
+  availableStock: number;
+  reservedStock: number;
+  damagedStock: number;
+  movementsToday: number;
+  totalProducts: number;
+  lowStock: number;
+  transactions: number;
+  reservations: number;
+}
+
+export interface InventoryListDto {
+  stockItems: InventoryStockItemDto[];
+  movements: StockMovementDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: InventorySummaryDto;
+}
+
 export interface PublicProductDto {
   id: string;
   name: string;
@@ -209,6 +288,140 @@ export interface MasterDataListDto {
   page: number;
   pageSize: number;
   summary: MasterDataSummaryDto;
+}
+
+export type SupplierStatus = 'active' | 'payment_due' | 'inactive';
+
+export interface CreateSupplierDto {
+  name: string;
+  contactPerson?: string;
+  mobile: string;
+  email?: string;
+  gstin?: string;
+  address?: string;
+  state?: string;
+  stateCode?: string;
+  paymentTermsDays?: number;
+  openingBalanceInPaise?: number;
+  currentPayableInPaise?: number;
+  bankName?: string;
+  accountNumber?: string;
+  ifsc?: string;
+  status?: SupplierStatus;
+  notes?: string;
+}
+
+export type UpdateSupplierDto = Partial<CreateSupplierDto>;
+
+export interface SupplierDto extends CreateSupplierDto {
+  id: string;
+  status: SupplierStatus;
+  paymentTermsDays: number;
+  openingBalanceInPaise: number;
+  currentPayableInPaise: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface SupplierSummaryDto {
+  totalSuppliers: number;
+  activeSuppliers: number;
+  payableInPaise: number;
+  paymentDueSuppliers: number;
+  inactiveSuppliers: number;
+  gstRegistered: number;
+}
+
+export interface SupplierListDto {
+  items: SupplierDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: SupplierSummaryDto;
+}
+
+export type PurchaseStatus = 'Draft' | 'Ordered' | 'Partially received' | 'Received' | 'Cancelled';
+
+export type PurchasePaymentStatus = 'Unpaid' | 'Partially paid' | 'Paid';
+
+export interface CreatePurchaseItemDto {
+  productId?: string;
+  productName: string;
+  sku?: string;
+  hsn?: string;
+  quantity: number;
+  receivedQuantity?: number;
+  unitCostInPaise: number;
+  discountInPaise?: number;
+  gstRate?: number;
+}
+
+export interface CreatePurchaseDto {
+  supplierId: string;
+  purchaseDate?: string;
+  expectedReceiptDate?: string;
+  supplierInvoiceNumber?: string;
+  items: CreatePurchaseItemDto[];
+  shippingChargeInPaise?: number;
+  otherChargeInPaise?: number;
+  paidAmountInPaise?: number;
+  status?: PurchaseStatus;
+  notes?: string;
+  internalNotes?: string;
+}
+
+export type UpdatePurchaseDto = Partial<CreatePurchaseDto>;
+
+export interface PurchaseItemDto extends CreatePurchaseItemDto {
+  receivedQuantity: number;
+  discountInPaise: number;
+  gstRate: number;
+  taxableAmountInPaise: number;
+  taxAmountInPaise: number;
+  lineTotalInPaise: number;
+}
+
+export interface PurchaseDto {
+  id: string;
+  purchaseNumber: string;
+  supplierId: string;
+  supplierName: string;
+  supplierMobile?: string;
+  supplierInvoiceNumber?: string;
+  items: PurchaseItemDto[];
+  subtotalInPaise: number;
+  itemDiscountInPaise: number;
+  taxableAmountInPaise: number;
+  taxAmountInPaise: number;
+  shippingChargeInPaise: number;
+  otherChargeInPaise: number;
+  totalInPaise: number;
+  paidAmountInPaise: number;
+  dueAmountInPaise: number;
+  status: PurchaseStatus;
+  paymentStatus: PurchasePaymentStatus;
+  purchaseDate: string;
+  expectedReceiptDate?: string;
+  receivedAt?: string;
+  notes?: string;
+  internalNotes?: string;
+  createdAt: string;
+}
+
+export interface PurchaseSummaryDto {
+  purchaseValueInPaise: number;
+  pendingReceipt: number;
+  drafts: number;
+  received: number;
+  payableInPaise: number;
+}
+
+export interface PurchaseListDto {
+  items: PurchaseDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: PurchaseSummaryDto;
 }
 
 export type OperationalModuleSlug =
@@ -378,6 +591,231 @@ export interface OrderDto {
   notes?: string;
   internalNotes?: string;
   createdAt: string;
+}
+
+export type ShipmentStatus =
+  'Ready' | 'Shipped' | 'In transit' | 'Delivered' | 'Delayed' | 'Cancelled';
+
+export interface CreateShipmentDto {
+  orderId: string;
+  courier: string;
+  trackingNumber?: string;
+  status?: ShipmentStatus;
+  dispatchDate?: string;
+  expectedDeliveryDate?: string;
+  deliveredAt?: string;
+  packageWeightGrams?: number;
+  packageCount?: number;
+  notes?: string;
+}
+
+export type UpdateShipmentDto = Partial<CreateShipmentDto>;
+
+export interface ShipmentDto {
+  id: string;
+  shipmentNumber: string;
+  orderId: string;
+  orderNumber: string;
+  customer: CreateOrderDto['customer'];
+  items: OrderItemDto[];
+  courier: string;
+  trackingNumber?: string;
+  status: ShipmentStatus;
+  dispatchDate?: string;
+  expectedDeliveryDate?: string;
+  deliveredAt?: string;
+  packageWeightGrams: number;
+  packageCount: number;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface ShippingSummaryDto {
+  readyToShip: number;
+  inTransit: number;
+  delayed: number;
+  deliveredWeek: number;
+  totalShipments: number;
+  shipped: number;
+  delivered: number;
+}
+
+export interface ShippingListDto {
+  items: ShipmentDto[];
+  readyOrders: OrderDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: ShippingSummaryDto;
+}
+
+export type ReturnResolution = 'Refund' | 'Exchange' | 'Store credit' | 'Reject';
+
+export type ReturnStatus =
+  | 'Requested'
+  | 'Inspection'
+  | 'Refund due'
+  | 'Exchange pending'
+  | 'Closed'
+  | 'Rejected'
+  | 'Cancelled';
+
+export type InspectionResult = 'Pending' | 'Sellable' | 'Damaged' | 'Missing item' | 'Rejected';
+
+export interface CreateReturnRequestDto {
+  orderId: string;
+  reason: string;
+  status?: ReturnStatus;
+  inspectionResult?: InspectionResult;
+  resolution?: ReturnResolution;
+  refundAmountInPaise?: number;
+  exchangeProductName?: string;
+  exchangeSku?: string;
+  exchangeAmountInPaise?: number;
+  requestedDate?: string;
+  inspectedAt?: string;
+  closedAt?: string;
+  notes?: string;
+}
+
+export type UpdateReturnRequestDto = Partial<CreateReturnRequestDto>;
+
+export interface ReturnRequestDto {
+  id: string;
+  returnNumber: string;
+  orderId: string;
+  orderNumber: string;
+  customer: CreateOrderDto['customer'];
+  items: OrderItemDto[];
+  reason: string;
+  status: ReturnStatus;
+  inspectionResult: InspectionResult;
+  resolution: ReturnResolution;
+  refundAmountInPaise: number;
+  exchangeProductName?: string;
+  exchangeSku?: string;
+  exchangeAmountInPaise: number;
+  requestedDate: string;
+  inspectedAt?: string;
+  closedAt?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface ReturnsSummaryDto {
+  returnRequests: number;
+  awaitingInspect: number;
+  refundDueInPaise: number;
+  exchanges: number;
+  closed: number;
+}
+
+export interface ReturnsListDto {
+  items: ReturnRequestDto[];
+  orders: OrderDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: ReturnsSummaryDto;
+}
+
+export type ExpenseStatus = 'Draft' | 'Approved' | 'Rejected' | 'Cancelled';
+
+export type ExpensePaymentMethod = string;
+
+export type ExpenseCategory = string;
+
+export interface CreateExpenseDto {
+  title: string;
+  category: ExpenseCategory;
+  amountInPaise: number;
+  taxAmountInPaise?: number;
+  paymentMethod: ExpensePaymentMethod;
+  status?: ExpenseStatus;
+  expenseDate?: string;
+  vendor?: string;
+  referenceNumber?: string;
+  proofUrl?: string;
+  notes?: string;
+}
+
+export type UpdateExpenseDto = Partial<CreateExpenseDto>;
+
+export interface ExpenseDto extends CreateExpenseDto {
+  id: string;
+  status: ExpenseStatus;
+  taxAmountInPaise: number;
+  totalInPaise: number;
+  expenseDate: string;
+  createdAt: string;
+}
+
+export interface ExpenseSummaryDto {
+  monthTotalInPaise: number;
+  marketingInPaise: number;
+  packagingInPaise: number;
+  approved: number;
+  totalExpenses: number;
+  draft: number;
+  rejected: number;
+}
+
+export interface ExpenseListDto {
+  items: ExpenseDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: ExpenseSummaryDto;
+}
+
+export type ReportCategory = 'Sales' | 'Inventory' | 'Finance' | 'GST';
+
+export type ReportPeriod =
+  'today' | 'last_7_days' | 'current_month' | 'previous_month' | 'financial_year';
+
+export type ReportStatus = 'Ready' | 'Draft' | 'Failed' | 'Archived';
+
+export type ReportFormat = 'CSV' | 'Excel' | 'PDF';
+
+export interface CreateReportRunDto {
+  reportName: string;
+  category: ReportCategory;
+  period: ReportPeriod;
+  formats?: ReportFormat[];
+  notes?: string;
+}
+
+export type UpdateReportRunDto = Partial<CreateReportRunDto> & {
+  status?: ReportStatus;
+};
+
+export interface ReportRunDto extends CreateReportRunDto {
+  id: string;
+  status: ReportStatus;
+  formats: ReportFormat[];
+  records: number;
+  periodLabel: string;
+  generatedAt: string;
+  createdAt: string;
+}
+
+export interface ReportsSummaryDto {
+  monthSalesInPaise: number;
+  grossProfitInPaise: number;
+  expensesInPaise: number;
+  netProfitInPaise: number;
+  salesReports: number;
+  inventoryReports: number;
+  financeReports: number;
+  gstReports: number;
+}
+
+export interface ReportsListDto {
+  items: ReportRunDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: ReportsSummaryDto;
 }
 
 export type InvoiceType = string;
