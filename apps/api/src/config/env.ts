@@ -11,6 +11,7 @@ const envSchema = z.object({
   APP_URL: z.string().url().default('https://aayu-aura-admin.onrender.com'),
   ADMIN_WEB_URL: z.string().url().default('http://localhost:4200'),
   CORS_ALLOWED_ORIGINS: z.string().default('http://localhost:4200,http://127.0.0.1:4200'),
+  CORS_ALLOWED_ORIGIN_PATTERNS: z.string().default(''),
   MONGODB_URI: z.string().min(1).default('mongodb+srv://dipakahirav07_db_user:oTspWlcUIyvUNLt1@cluster0.enio5oh.mongodb.net/aayu_and_aura_admin?appName=Cluster0'),
   JWT_ACCESS_SECRET: z
     .string()
@@ -31,3 +32,15 @@ export const env = envSchema.parse(process.env);
 export const corsAllowedOrigins = env.CORS_ALLOWED_ORIGINS.split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+
+const corsAllowedOriginPatterns = env.CORS_ALLOWED_ORIGIN_PATTERNS.split(',')
+  .map((pattern) => pattern.trim())
+  .filter(Boolean)
+  .map((pattern) => new RegExp(pattern));
+
+export function isCorsOriginAllowed(origin: string | undefined): boolean {
+  if (!origin) return true;
+  if (origin === env.ADMIN_WEB_URL) return true;
+  if (corsAllowedOrigins.includes(origin)) return true;
+  return corsAllowedOriginPatterns.some((pattern) => pattern.test(origin));
+}

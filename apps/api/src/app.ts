@@ -5,7 +5,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { corsAllowedOrigins, env } from './config/env.js';
+import { env, isCorsOriginAllowed } from './config/env.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { notFoundHandler } from './middleware/not-found.js';
 import { requestId } from './middleware/request-id.js';
@@ -19,7 +19,7 @@ export function createApp(): express.Express {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || corsAllowedOrigins.includes(origin)) {
+        if (isCorsOriginAllowed(origin)) {
           callback(null, true);
           return;
         }
