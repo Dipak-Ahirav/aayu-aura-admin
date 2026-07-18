@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -37,6 +37,13 @@ const navItems: NavItem[] = [
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule],
   template: `
     <div class="shell" [class.nav-open]="navOpen()" [class.nav-collapsed]="navCollapsed()">
+      <button
+        class="nav-backdrop"
+        type="button"
+        aria-label="Close navigation"
+        (click)="closeNav()"
+      ></button>
+
       <aside class="sidebar" aria-label="Primary navigation">
         <div class="brand">
           <div class="logo">A&A</div>
@@ -53,6 +60,15 @@ const navItems: NavItem[] = [
           >
             <mat-icon>{{ navCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
           </button>
+          <button
+            mat-icon-button
+            type="button"
+            class="mobile-close-button"
+            (click)="closeNav()"
+            aria-label="Close navigation"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
 
         <nav>
@@ -63,6 +79,7 @@ const navItems: NavItem[] = [
               [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
               [attr.aria-label]="item.label"
               [attr.title]="navCollapsed() ? item.label : null"
+              (click)="closeNav()"
             >
               <mat-icon>{{ item.icon }}</mat-icon>
               <span class="nav-label">{{ item.label }}</span>
@@ -117,6 +134,11 @@ const navItems: NavItem[] = [
         color: #fffaf2;
         overflow-y: auto;
         overflow-x: hidden;
+      }
+
+      .nav-backdrop,
+      .mobile-close-button {
+        display: none;
       }
 
       .brand {
@@ -276,7 +298,25 @@ const navItems: NavItem[] = [
           width: min(82vw, 300px);
           transform: translateX(-100%);
           transition: transform 180ms ease;
+          z-index: 6;
+        }
+
+        .nav-backdrop {
+          position: fixed;
+          inset: 0;
+          display: block;
+          border: 0;
+          padding: 0;
+          background: rgba(42, 23, 41, 0.45);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 180ms ease;
           z-index: 5;
+        }
+
+        .shell.nav-open .nav-backdrop {
+          opacity: 1;
+          pointer-events: auto;
         }
 
         .shell.nav-collapsed .sidebar {
@@ -296,6 +336,12 @@ const navItems: NavItem[] = [
 
         .collapse-button {
           display: none;
+        }
+
+        .mobile-close-button {
+          display: inline-grid;
+          margin-left: auto;
+          color: #fffaf2;
         }
 
         .shell.nav-collapsed nav a {
@@ -333,11 +379,20 @@ export class AdminLayoutComponent {
     this.navOpen.update((value) => !value);
   }
 
+  closeNav(): void {
+    this.navOpen.set(false);
+  }
+
   toggleNavCollapse(): void {
     this.navCollapsed.update((value) => !value);
   }
 
   logout(): void {
     this.auth.logout();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeNav();
   }
 }
