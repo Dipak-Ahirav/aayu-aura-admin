@@ -18,6 +18,11 @@
     "build": "npm run build --workspaces --if-present",
     "build:api": "npm run build --workspace @aayu-aura/shared-types && npm run build --workspace @aayu-aura/api",
     "build:web": "npm run build --workspace @aayu-aura/shared-types && npm run build --workspace @aayu-aura/admin-web",
+    "dev:customer": "npm run start --workspace @aayu-aura/customer-web",
+    "build:customer": "npm run build --workspace @aayu-aura/shared-types && npm run build --workspace @aayu-aura/customer-web",
+    "test:customer": "npm run test --workspace @aayu-aura/customer-web",
+    "lint:customer": "npm run lint --workspace @aayu-aura/customer-web",
+    "e2e:customer": "npm run e2e --workspace @aayu-aura/customer-web",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "format": "node node_modules/prettier/bin/prettier.cjs --write ."

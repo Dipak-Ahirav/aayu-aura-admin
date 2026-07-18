@@ -276,6 +276,156 @@ export interface PublicProductDto {
   isAvailable: boolean;
 }
 
+export type CustomerAvailabilityStatus =
+  | 'in_stock'
+  | 'only_few_left'
+  | 'out_of_stock'
+  | 'coming_soon';
+
+export interface PublicImageDto {
+  url: string;
+  altText: string;
+  width?: number;
+  height?: number;
+  sortOrder?: number;
+}
+
+export interface PublicProductVariantDto {
+  id: string;
+  name: string;
+  sku?: string;
+  colour?: string;
+  sellingPriceInPaise: number;
+  mrpInPaise?: number;
+  offerPriceInPaise?: number;
+  availability: CustomerAvailabilityStatus;
+  images?: PublicImageDto[];
+}
+
+export interface PublicProductCardDto {
+  id: string;
+  slug: string;
+  name: string;
+  productCode: string;
+  sareeType?: string;
+  fabric?: string;
+  primaryColour?: string;
+  coverImage?: PublicImageDto;
+  mrpInPaise?: number;
+  sellingPriceInPaise: number;
+  offerPriceInPaise?: number;
+  discountPercentage?: number;
+  availability: CustomerAvailabilityStatus;
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  variantCount: number;
+  averageRating?: number;
+  reviewCount?: number;
+}
+
+export interface PublicProductDetailDto extends PublicProductCardDto {
+  category?: string;
+  collection?: string;
+  colours: string[];
+  pattern?: string;
+  work?: string;
+  occasion?: string;
+  description?: string;
+  careInstructions?: string;
+  countryOfOrigin?: string;
+  sareeLength?: string;
+  sareeWidth?: string;
+  blouseIncluded?: boolean;
+  blouseDetails?: string;
+  taxInformation?: string;
+  images: PublicImageDto[];
+  variants: PublicProductVariantDto[];
+  relatedProductIds?: string[];
+}
+
+export interface PublicProductListResponseDto {
+  items: PublicProductCardDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  filters: PublicProductFilterGroupDto[];
+}
+
+export interface PublicProductFilterGroupDto {
+  key: string;
+  label: string;
+  values: PublicProductFilterValueDto[];
+}
+
+export interface PublicProductFilterValueDto {
+  value: string;
+  label: string;
+  count: number;
+}
+
+export type CustomerFriendlyOrderStatus =
+  | 'Order placed'
+  | 'Order confirmed'
+  | 'Processing'
+  | 'Packed'
+  | 'Shipped'
+  | 'Out for delivery'
+  | 'Delivered'
+  | 'Cancelled'
+  | 'Return requested'
+  | 'Partially returned'
+  | 'Returned'
+  | 'Exchanged'
+  | 'Completed';
+
+export interface CustomerOrderItemDto {
+  productName: string;
+  productSlug?: string;
+  productCode?: string;
+  variantName?: string;
+  image?: PublicImageDto;
+  quantity: number;
+  unitPriceInPaise: number;
+  discountInPaise: number;
+  taxAmountInPaise: number;
+  lineTotalInPaise: number;
+}
+
+export interface CustomerOrderAddressSnapshotDto {
+  fullName: string;
+  mobile: string;
+  addressLine1: string;
+  addressLine2?: string;
+  landmark?: string;
+  city: string;
+  district?: string;
+  state: string;
+  stateCode?: string;
+  country: string;
+  pinCode: string;
+}
+
+export interface CustomerOrderDto {
+  id: string;
+  orderNumber: string;
+  customerStatus: CustomerFriendlyOrderStatus;
+  paymentStatus: OrderPaymentStatus;
+  placedAt: string;
+  items: CustomerOrderItemDto[];
+  shippingAddress: CustomerOrderAddressSnapshotDto;
+  billingAddress?: CustomerOrderAddressSnapshotDto;
+  subtotalInPaise: number;
+  discountInPaise: number;
+  taxAmountInPaise: number;
+  shippingChargeInPaise: number;
+  totalInPaise: number;
+  paidAmountInPaise: number;
+  dueAmountInPaise: number;
+  invoiceAvailable: boolean;
+  cancellationAllowed: boolean;
+  returnAllowed: boolean;
+}
+
 export interface BusinessSettingsDto {
   displayName: string;
   legalName?: string;
