@@ -327,6 +327,14 @@ a {
 
 .product-media {
   aspect-ratio: 4 / 5;
+  overflow: hidden;
+}
+
+.product-media img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
 .product-media-ivory {

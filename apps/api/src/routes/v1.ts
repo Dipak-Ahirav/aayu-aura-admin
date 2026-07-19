@@ -86,6 +86,7 @@ import {
   listSettings,
   updateBusinessSettings,
 } from '../domain/settings/settings.controller.js';
+import { storefrontHome } from '../domain/storefront-home/storefront-home.controller.js';
 import {
   cancelReturn,
   createExchange,
@@ -130,6 +131,7 @@ v1Router.get('/ready', (_req, res) => {
   res.json(ok({ status: 'ready' }));
 });
 
+v1Router.get('/public/home', storefrontHome);
 v1Router.post('/auth/login', login);
 v1Router.get('/auth/me', authenticate, me);
 v1Router.get('/dashboard/summary', authenticate, dashboardSummary);

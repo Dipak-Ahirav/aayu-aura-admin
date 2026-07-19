@@ -13,6 +13,7 @@ export interface StorefrontProduct {
   rating: number;
   reviews: number;
   stock: 'In stock' | 'Only a few left' | 'Out of stock';
+  imageUrl?: string;
   imageTone: string;
   colours: string[];
 }

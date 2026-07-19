@@ -1,24 +1,30 @@
-import { Component } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { PublicHomepageProductDto } from '@aayu-aura/shared-types';
+import { StorefrontProduct } from '../../shared/models/storefront-demo.models';
 import { ProductCardComponent } from '../../shared/ui/product-card.component';
 import { featuredProducts } from '../../shared/utilities/storefront-demo-data';
+import { HomeService } from './home.service';
 
 @Component({
   selector: 'aac-home-page',
   standalone: true,
-  imports: [ProductCardComponent, RouterLink],
+  imports: [AsyncPipe, ProductCardComponent, RouterLink],
   template: `
+    @if (homepage$ | async; as homepage) {
     <section class="hero-section">
       <div class="hero-copy">
-        <p class="eyebrow">Aayu & Aura boutique</p>
-        <h1>Premium sarees styled for weddings, festivals, and graceful everyday wear.</h1>
-        <p>
-          Discover elegant drapes, rich fabrics, detailed borders, blouse pairings,
-          and occasion-ready collections in a calm mobile-first shopping experience.
-        </p>
+        <p class="eyebrow">{{ homepage.hero.eyebrow }}</p>
+        <h1>{{ homepage.hero.title }}</h1>
+        <p>{{ homepage.hero.description }}</p>
         <div class="hero-actions">
-          <a class="button primary" routerLink="/shop">Browse sarees</a>
-          <a class="button secondary" routerLink="/collections">View collections</a>
+          <a class="button primary" [routerLink]="homepage.hero.primaryCta.link">
+            {{ homepage.hero.primaryCta.label }}
+          </a>
+          <a class="button secondary" [routerLink]="homepage.hero.secondaryCta.link">
+            {{ homepage.hero.secondaryCta.label }}
+          </a>
         </div>
         <dl class="trust-strip">
           <div><dt>COD</dt><dd>where available</dd></div>
@@ -26,9 +32,9 @@ import { featuredProducts } from '../../shared/utilities/storefront-demo-data';
           <div><dt>Secure</dt><dd>clear checkout</dd></div>
         </dl>
       </div>
-      <div class="hero-media" aria-label="Premium saree showcase">
-        <span class="hero-badge">New festive edit</span>
-        <span class="hero-caption">Large catalogue images and video slots are ready for backend content.</span>
+      <div class="hero-media product-media-{{ homepage.hero.imageTone }}" aria-label="Premium saree showcase">
+        <span class="hero-badge">{{ homepage.hero.badge }}</span>
+        <span class="hero-caption">Homepage content and products are loaded from Node and MongoDB.</span>
       </div>
     </section>
 
@@ -38,7 +44,7 @@ import { featuredProducts } from '../../shared/utilities/storefront-demo-data';
         <h2>Browse by category, saree type, occasion, and budget.</h2>
       </div>
       <div class="pill-grid" aria-label="Shopping shortcuts">
-        @for (item of shoppingShortcuts; track item.label) {
+        @for (item of homepage.shortcuts; track item.label) {
           <a [routerLink]="item.link">
             <span>{{ item.label }}</span>
             <small>{{ item.description }}</small>
@@ -46,6 +52,23 @@ import { featuredProducts } from '../../shared/utilities/storefront-demo-data';
         }
       </div>
     </section>
+
+    @if (homepage.categories.length > 0) {
+      <section class="boutique-section">
+        <div class="section-heading">
+          <p class="eyebrow">Dynamic categories</p>
+          <h2>Categories are generated from MongoDB product data.</h2>
+        </div>
+        <div class="pill-grid category-pills" aria-label="Dynamic categories">
+          @for (category of homepage.categories; track category.label) {
+            <a [routerLink]="category.link">
+              <span>{{ category.label }}</span>
+              <small>{{ category.description }}</small>
+            </a>
+          }
+        </div>
+      </section>
+    }
 
     <section class="boutique-section">
       <div class="section-heading row-heading">
@@ -56,7 +79,22 @@ import { featuredProducts } from '../../shared/utilities/storefront-demo-data';
         <a routerLink="/shop">View all</a>
       </div>
       <div class="product-grid">
-        @for (product of products; track product.slug) {
+        @for (product of productCards(homepage.newArrivals); track product.slug) {
+          <aac-product-card [product]="product" />
+        }
+      </div>
+    </section>
+
+    <section class="boutique-section">
+      <div class="section-heading row-heading">
+        <div>
+          <p class="eyebrow">Best sellers</p>
+          <h2>Customer favourites with stock badges and dummy saree imagery.</h2>
+        </div>
+        <a routerLink="/collections/best-sellers">View collection</a>
+      </div>
+      <div class="product-grid">
+        @for (product of productCards(homepage.bestSellers); track product.slug) {
           <aac-product-card [product]="product" />
         }
       </div>
@@ -65,32 +103,56 @@ import { featuredProducts } from '../../shared/utilities/storefront-demo-data';
     <section class="story-reviews-grid">
       <article class="brand-story">
         <p class="eyebrow">Brand story</p>
-        <h2>Curated sarees with a boutique eye for fabric, fall, and finish.</h2>
-        <p>
-          The customer storefront keeps the layout spacious and product-led, while
-          preserving existing backend ownership of products, orders, payments, invoices,
-          returns, and customer records.
-        </p>
+        <h2>{{ homepage.brandStory.title }}</h2>
+        <p>{{ homepage.brandStory.description }}</p>
       </article>
       <article class="review-card">
         <p class="eyebrow">Customer review</p>
-        <blockquote>
-          The saree looked premium, the blouse details were clear, and WhatsApp support
-          helped me pick the right shade for a family function.
-        </blockquote>
-        <span>Rated 4.9 for the festive collection</span>
+        @for (review of homepage.reviews; track review.customerName) {
+          <blockquote>{{ review.quote }}</blockquote>
+          <span>{{ review.customerName }} • Rated {{ review.rating }}</span>
+        }
       </article>
     </section>
+    } @else {
+      <section class="page-shell">
+        <p class="eyebrow">Loading issue</p>
+        <h1>Homepage data is unavailable</h1>
+        <p>Start the API and MongoDB connection, then refresh the storefront.</p>
+      </section>
+    }
   `,
 })
 export class HomePageComponent {
-  protected readonly products = featuredProducts;
-  protected readonly shoppingShortcuts = [
-    { label: 'Silk sarees', description: 'Kanjivaram, Banarasi, soft silk', link: '/category/silk-sarees' },
-    { label: 'Wedding edit', description: 'Rich zari and festive borders', link: '/collections/wedding-edit' },
-    { label: 'Under Rs. 5,000', description: 'Elegant picks for gifting', link: '/shop' },
-    { label: 'Party wear', description: 'Georgette, organza, shimmer', link: '/category/party-wear' },
-    { label: 'New arrivals', description: 'Recently added sarees', link: '/shop' },
-    { label: 'Best sellers', description: 'Customer favourites', link: '/collections/best-sellers' },
-  ];
+  private readonly homeService = inject(HomeService);
+  protected readonly homepage$ = this.homeService.getHomepage();
+
+  protected productCards(products: PublicHomepageProductDto[]): StorefrontProduct[] {
+    const source = products.length > 0 ? products : [];
+    return source.map((product, index) => ({
+      slug: product.slug,
+      name: product.name,
+      category: product.category ?? 'Sarees',
+      sareeType: product.sareeType ?? product.category ?? 'Saree',
+      fabric: product.fabric ?? 'Premium fabric',
+      colour: product.primaryColour ?? 'Boutique colour',
+      pattern: product.pattern ?? 'Elegant drape',
+      occasion: product.occasion ?? 'Festive',
+      priceInPaise: product.sellingPriceInPaise,
+      mrpInPaise: product.mrpInPaise ?? product.sellingPriceInPaise,
+      discount: product.discountPercentage ?? 0,
+      rating: product.rating,
+      reviews: product.reviewCount,
+      stock: this.stockLabel(product.availability),
+      imageUrl: product.imageUrl,
+      imageTone: product.imageTone ?? featuredProducts[index % featuredProducts.length].imageTone,
+      colours: product.colours,
+    }));
+  }
+
+  private stockLabel(value: PublicHomepageProductDto['availability']): StorefrontProduct['stock'] {
+    if (value === 'out_of_stock') return 'Out of stock';
+    if (value === 'only_few_left') return 'Only a few left';
+    return 'In stock';
+  }
 }

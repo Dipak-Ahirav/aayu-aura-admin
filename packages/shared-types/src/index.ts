@@ -351,6 +351,63 @@ export interface PublicProductListResponseDto {
   filters: PublicProductFilterGroupDto[];
 }
 
+export type PublicStorefrontImageTone = 'wine' | 'ivory' | 'plum' | 'emerald';
+
+export interface PublicHomepageProductDto {
+  id: string;
+  slug: string;
+  name: string;
+  category?: string;
+  sareeType?: string;
+  fabric?: string;
+  primaryColour?: string;
+  pattern?: string;
+  occasion?: string;
+  sellingPriceInPaise: number;
+  mrpInPaise?: number;
+  discountPercentage?: number;
+  rating: number;
+  reviewCount: number;
+  availability: CustomerAvailabilityStatus;
+  imageUrl?: string;
+  imageTone: PublicStorefrontImageTone;
+  colours: string[];
+}
+
+export interface PublicHomepageShortcutDto {
+  label: string;
+  description: string;
+  link: string;
+}
+
+export interface PublicHomepageReviewDto {
+  quote: string;
+  customerName: string;
+  rating: number;
+}
+
+export interface PublicHomepageDto {
+  hero: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    primaryCta: PublicHomepageShortcutDto;
+    secondaryCta: PublicHomepageShortcutDto;
+    imageTone: PublicStorefrontImageTone;
+    badge: string;
+  };
+  shortcuts: PublicHomepageShortcutDto[];
+  categories: PublicHomepageShortcutDto[];
+  newArrivals: PublicHomepageProductDto[];
+  bestSellers: PublicHomepageProductDto[];
+  featuredProducts: PublicHomepageProductDto[];
+  reviews: PublicHomepageReviewDto[];
+  brandStory: {
+    title: string;
+    description: string;
+  };
+}
+
 export interface PublicProductFilterGroupDto {
   key: string;
   label: string;

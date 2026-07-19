@@ -10,6 +10,9 @@ import { formatPrice } from '../utilities/storefront-demo-data';
   template: `
     <article class="product-card">
       <a class="product-media product-media-{{ product().imageTone }}" [routerLink]="['/saree', product().slug]">
+        @if (product().imageUrl) {
+          <img [src]="product().imageUrl" [alt]="product().name" loading="lazy">
+        }
         <span class="stock-badge">{{ product().stock }}</span>
         <span class="discount-badge">{{ product().discount }}% off</span>
       </a>
