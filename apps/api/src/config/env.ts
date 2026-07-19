@@ -53,8 +53,14 @@ const corsAllowedOriginPatterns = env.CORS_ALLOWED_ORIGIN_PATTERNS.split(',')
   .filter(Boolean)
   .map((pattern) => new RegExp(pattern));
 
+const trustedDeploymentOrigins = new Set([
+  'https://aayu-aura-admin-admin-web.vercel.app',
+  'https://aayu-aura-admin-web.vercel.app',
+]);
+
 export function isCorsOriginAllowed(origin: string | undefined): boolean {
   if (!origin) return true;
+  if (trustedDeploymentOrigins.has(origin)) return true;
   if (origin === env.ADMIN_WEB_URL) return true;
   if (origin === env.CUSTOMER_WEB_URL) return true;
   if (corsAllowedOrigins.includes(origin)) return true;

@@ -13,22 +13,22 @@ import { v1Router } from './routes/v1.js';
 
 export function createApp(): express.Express {
   const app = express();
+  const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+      if (isCorsOriginAllowed(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`CORS origin not allowed: ${origin}`));
+    },
+    credentials: true,
+  };
 
   app.use(requestId);
   app.use(helmet());
-  app.use(
-    cors({
-      origin: (origin, callback) => {
-        if (isCorsOriginAllowed(origin)) {
-          callback(null, true);
-          return;
-        }
-
-        callback(new Error(`CORS origin not allowed: ${origin}`));
-      },
-      credentials: true,
-    }),
-  );
+  app.options('*', cors(corsOptions));
+  app.use(cors(corsOptions));
   app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true }));
   app.use(compression());
   app.use(cookieParser(env.COOKIE_SECRET));
