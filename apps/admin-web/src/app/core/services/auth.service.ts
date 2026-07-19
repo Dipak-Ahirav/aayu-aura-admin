@@ -24,7 +24,7 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  login(email: string, password: string) {
+  login(email: string, password: string) { 
     return this.http
       .post<ApiSuccess<LoginResponse>>(`${environment.apiBaseUrl}/auth/login`, { email, password })
       .pipe(
