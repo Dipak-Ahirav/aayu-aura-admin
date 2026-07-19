@@ -1,97 +1,81 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type {
   CustomerAvailabilityStatus,
+  PublicCollectionDto,
+  PublicCollectionListResponseDto,
   PublicProductCardDto,
   PublicProductFilterGroupDto,
-  PublicSearchResponseDto,
-  PublicSearchSuggestionDto,
 } from '@aayu-aura/shared-types';
 import { ProductCardComponent } from '../../shared/ui/product-card.component';
 import { StorefrontProduct } from '../../shared/models/storefront-demo.models';
-import { SearchQuery, SearchService } from './search.service';
+import { featuredProducts, formatPrice } from '../../shared/utilities/storefront-demo-data';
+import { CollectionsQuery, CollectionsService } from './collections.service';
 
 @Component({
-  selector: 'aac-search-page',
+  selector: 'aac-collections-page',
   standalone: true,
-  imports: [ProductCardComponent, ReactiveFormsModule],
+  imports: [ProductCardComponent, ReactiveFormsModule, RouterLink],
   template: `
-    <section class="search-shell">
-      <div class="search-hero search-hero-dynamic">
+    <section class="collections-shell">
+      <header class="collections-hero">
         <div>
-          <p class="eyebrow">Advanced search</p>
-          <h1>Find the right fabric, colour, and occasion faster.</h1>
-          <p>Search live MongoDB products by saree name, SKU, fabric, colour, occasion, category, pattern, and availability.</p>
+          <p class="eyebrow">{{ hero().eyebrow }}</p>
+          <h1>{{ hero().title }}</h1>
+          <p>{{ hero().description }}</p>
         </div>
+        <div
+          class="collection-hero-card"
+          [class.tone-wine]="hero().imageTone === 'wine'"
+          [class.tone-ivory]="hero().imageTone === 'ivory'"
+          [class.tone-plum]="hero().imageTone === 'plum'"
+          [class.tone-emerald]="hero().imageTone === 'emerald'"
+        >
+          <span>{{ selectedCollection()?.badge ?? 'Curated edit' }}</span>
+          <strong>{{ selectedCollection()?.title ?? 'Aayu & Aura' }}</strong>
+          <small>{{ total() }} sarees available</small>
+        </div>
+      </header>
 
-        <div class="search-control-card">
-          <label class="search-box">
-            <span class="sr-only">Search sarees</span>
-            <input
-              [formControl]="query"
-              type="search"
-              placeholder="Search silk, maroon, wedding, Banarasi"
-              (keydown.enter)="submitSearch()"
+      <section class="collection-card-grid" aria-label="Collections">
+        @for (collection of collections(); track collection.slug) {
+          <a
+            class="collection-card"
+            [class.is-active]="collection.slug === collectionSlug()"
+            [routerLink]="['/collections', collection.slug]"
+          >
+            <div
+              class="collection-card-media"
+              [class.tone-wine]="collection.imageTone === 'wine'"
+              [class.tone-ivory]="collection.imageTone === 'ivory'"
+              [class.tone-plum]="collection.imageTone === 'plum'"
+              [class.tone-emerald]="collection.imageTone === 'emerald'"
             >
-            <button type="button" (click)="submitSearch()">Search</button>
-          </label>
-
-          <div class="suggestion-row" aria-label="Popular searches">
-            @for (term of popularSearches(); track term.query) {
-              <button type="button" (click)="applySuggestion(term)">{{ term.label }}</button>
-            }
-          </div>
-
-          @if (suggestions().length > 0) {
-            <div class="search-suggestion-panel" aria-label="Search suggestions">
-              @for (suggestion of suggestions(); track suggestion.type + suggestion.query) {
-                <button type="button" (click)="applySuggestion(suggestion)">
-                  <span>{{ suggestion.type }}</span>
-                  {{ suggestion.label }}
-                </button>
-              }
+              <span>{{ collection.badge }}</span>
             </div>
-          }
-        </div>
-      </div>
-
-      @if (categoryFilter()) {
-        <section class="search-category-section" aria-label="Search by category">
-          <div class="section-heading">
             <div>
-              <p class="eyebrow">Search by category</p>
-              <h2>Choose a saree category</h2>
+              <h2>{{ collection.title }}</h2>
+              <p>{{ collection.description }}</p>
+              <div class="collection-meta">
+                <span>{{ collection.productCount }} sarees</span>
+                @if (collection.startingPriceInPaise) {
+                  <span>From {{ price(collection.startingPriceInPaise) }}</span>
+                }
+              </div>
             </div>
-            @if (isAnyCategorySelected()) {
-              <button type="button" (click)="clearCategory()">Clear category</button>
-            }
-          </div>
-          <div class="search-category-grid">
-            @for (category of categoryFilter()?.values ?? []; track category.value) {
-              <button
-                type="button"
-                class="search-category-card"
-                [class.is-active]="isSelected('category', category.value)"
-                (click)="toggleFilter('category', category.value)"
-              >
-                <span>{{ category.count }}</span>
-                <strong>{{ category.label }}</strong>
-                <small>Browse matching sarees</small>
-              </button>
-            }
-          </div>
-        </section>
-      }
+          </a>
+        }
+      </section>
 
-      <div class="shop-toolbar" aria-label="Search controls">
+      <div class="shop-toolbar" aria-label="Collection controls">
         <div class="compact-field">
           <span>Sort</span>
           <details class="custom-select">
             <summary>{{ sortLabel() }}</summary>
-            <div class="custom-select-menu" role="listbox" aria-label="Sort search results">
+            <div class="custom-select-menu" role="listbox" aria-label="Sort collection products">
               @for (option of sortOptions; track option.value) {
                 <button
                   type="button"
@@ -119,16 +103,16 @@ import { SearchQuery, SearchService } from './search.service';
       </div>
 
       <div class="catalogue-layout">
-        <aside class="filter-panel" aria-label="Search filters">
+        <aside class="filter-panel" aria-label="Collection filters">
           <div class="filter-panel-title">
-            <h2>Filters</h2>
+            <h2>Refine</h2>
             <button type="button" (click)="clearFilters()">Clear all</button>
           </div>
 
           @for (filter of filters(); track filter.key) {
-            <section class="filter-group" [class.category-filter-group]="filter.key === 'category'">
+            <section class="filter-group">
               <h3>{{ filter.label }}</h3>
-              <div class="filter-chip-grid" [class.category-filter-grid]="filter.key === 'category'">
+              <div class="filter-chip-grid">
                 @for (value of filter.values; track value.value) {
                   <label class="filter-option" [class.is-active]="isSelected(filter.key, value.value)">
                     <input
@@ -147,13 +131,9 @@ import { SearchQuery, SearchService } from './search.service';
 
         <div class="shop-results">
           <div class="applied-row">
-            <span>{{ total() }} results</span>
-            @if (currentQuery()) {
-              <span>For "{{ currentQuery() }}"</span>
-            } @else {
-              <span>All searchable sarees</span>
-            }
-            <span>Live stock</span>
+            <span>{{ selectedCollection()?.title ?? 'Collection' }}</span>
+            <span>{{ total() }} sarees</span>
+            <span>Live catalogue</span>
             @if (activeFilterCount() > 0) {
               <button type="button" (click)="clearFilters()">Clear {{ activeFilterCount() }} filters</button>
             }
@@ -170,7 +150,7 @@ import { SearchQuery, SearchService } from './search.service';
           }
 
           @if (loading()) {
-            <div class="loading-grid" aria-label="Loading search results">
+            <div class="loading-grid" aria-label="Loading collection products">
               @for (item of skeletons; track item) {
                 <div class="skeleton-card"></div>
               }
@@ -178,15 +158,15 @@ import { SearchQuery, SearchService } from './search.service';
           } @else if (error()) {
             <div class="shop-empty">
               <p class="eyebrow">Loading issue</p>
-              <h2>Search is unavailable</h2>
+              <h2>Collections are unavailable</h2>
               <p>Start the API and MongoDB connection, then refresh the storefront.</p>
               <button type="button" (click)="load()">Try again</button>
             </div>
           } @else if (products().length === 0) {
             <div class="shop-empty">
               <p class="eyebrow">No match</p>
-              <h2>No sarees found</h2>
-              <p>Try a fabric, colour, occasion, or product code. You can also remove filters.</p>
+              <h2>No sarees found in this collection</h2>
+              <p>Remove a filter or choose another curated edit.</p>
               <button type="button" (click)="clearFilters()">Clear filters</button>
             </div>
           } @else {
@@ -195,7 +175,7 @@ import { SearchQuery, SearchService } from './search.service';
                 <aac-product-card [product]="product" />
               }
             </div>
-            <div class="pagination-row" aria-label="Search pagination">
+            <div class="pagination-row" aria-label="Collection pagination">
               <button type="button" [disabled]="page() <= 1" (click)="previousPage()">Previous</button>
               <span>Page {{ page() }} of {{ totalPages() }}</span>
               <button type="button" [disabled]="page() >= totalPages()" (click)="nextPage()">Next</button>
@@ -206,17 +186,14 @@ import { SearchQuery, SearchService } from './search.service';
     </section>
   `,
 })
-export class SearchPageComponent {
-  private readonly searchService = inject(SearchService);
+export class CollectionsPageComponent {
+  private readonly collectionsService = inject(CollectionsService);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly query = new FormControl('', { nonNullable: true });
   protected readonly sort = new FormControl('featured', { nonNullable: true });
   protected readonly sortOptions = [
     { value: 'featured', label: 'Featured' },
-    { value: 'newest', label: 'Newest' },
     { value: 'price_asc', label: 'Price: low to high' },
     { value: 'price_desc', label: 'Price: high to low' },
     { value: 'highest_discount', label: 'Highest discount' },
@@ -226,21 +203,24 @@ export class SearchPageComponent {
   protected readonly maxPrice = new FormControl<number | null>(null);
   protected readonly page = signal(1);
   protected readonly pageSize = 12;
+  protected readonly collectionSlug = signal<string | null>(null);
   protected readonly loading = signal(false);
   protected readonly error = signal(false);
-  protected readonly currentQuery = signal('');
-  protected readonly products = signal<StorefrontProduct[]>([]);
+  protected readonly collections = signal<PublicCollectionDto[]>([]);
+  protected readonly selectedCollection = signal<PublicCollectionDto | undefined>(undefined);
   protected readonly filters = signal<PublicProductFilterGroupDto[]>([]);
   protected readonly selected = signal<Record<string, string[]>>({});
-  protected readonly suggestions = signal<PublicSearchSuggestionDto[]>([]);
-  protected readonly popularSearches = signal<PublicSearchSuggestionDto[]>([]);
-  protected readonly total = signal(0);
+  protected readonly products = signal<StorefrontProduct[]>(featuredProducts);
+  protected readonly total = signal(featuredProducts.length);
   protected readonly skeletons = Array.from({ length: 8 }, (_, index) => index);
+  protected readonly hero = signal({
+    eyebrow: 'Curated collections',
+    title: 'Shop sarees by mood, moment, and fabric.',
+    description: 'Browse boutique edits from the live catalogue.',
+    imageTone: 'wine',
+  });
   protected readonly totalPages = computed(() =>
     Math.max(Math.ceil(this.total() / this.pageSize), 1),
-  );
-  protected readonly categoryFilter = computed(() =>
-    this.filters().find((filter) => filter.key === 'category'),
   );
   protected readonly activeFilterCount = computed(() =>
     Object.values(this.selected()).reduce((count, values) => count + values.length, 0),
@@ -258,17 +238,12 @@ export class SearchPageComponent {
   });
 
   constructor() {
-    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
-      const incomingQuery = params.get('q') ?? '';
-      this.query.setValue(incomingQuery, { emitEvent: false });
-      this.currentQuery.set(incomingQuery);
-      this.page.set(Number(params.get('page')) || 1);
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.collectionSlug.set(params.get('collectionSlug'));
+      this.selected.set({});
+      this.page.set(1);
       this.load();
     });
-
-    this.query.valueChanges
-      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.resetAndLoad());
     this.sort.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.resetAndLoad());
@@ -278,25 +253,6 @@ export class SearchPageComponent {
     this.maxPrice.valueChanges
       .pipe(debounceTime(350), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.resetAndLoad());
-  }
-
-  protected submitSearch(): void {
-    this.currentQuery.set(this.query.value.trim());
-    this.router.navigate([], {
-      queryParams: { q: this.currentQuery() || null, page: null },
-      queryParamsHandling: 'merge',
-    });
-    this.resetAndLoad();
-  }
-
-  protected applySuggestion(suggestion: PublicSearchSuggestionDto): void {
-    this.query.setValue(suggestion.query, { emitEvent: false });
-    this.currentQuery.set(suggestion.query);
-    this.router.navigate([], {
-      queryParams: { q: suggestion.query, page: null },
-      queryParamsHandling: 'merge',
-    });
-    this.resetAndLoad();
   }
 
   protected toggleFilter(key: string, value: string): void {
@@ -311,16 +267,6 @@ export class SearchPageComponent {
 
   protected isSelected(key: string, value: string): boolean {
     return this.selected()[key]?.includes(value) ?? false;
-  }
-
-  protected isAnyCategorySelected(): boolean {
-    return (this.selected()['category']?.length ?? 0) > 0;
-  }
-
-  protected clearCategory(): void {
-    const { category: _category, ...remaining } = this.selected();
-    this.selected.set(remaining);
-    this.resetAndLoad();
   }
 
   protected clearFilters(): void {
@@ -351,25 +297,27 @@ export class SearchPageComponent {
     this.load();
   }
 
+  protected price(paise: number): string {
+    return formatPrice(paise);
+  }
+
   protected load(): void {
     this.loading.set(true);
     this.error.set(false);
-    this.searchService
-      .search(this.searchQuery())
+    this.collectionsService
+      .get(this.collectionSlug(), this.query())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response) => this.applyResponse(response));
   }
 
   private resetAndLoad(): void {
     this.page.set(1);
-    this.currentQuery.set(this.query.value.trim());
     this.load();
   }
 
-  private searchQuery(): SearchQuery {
+  private query(): CollectionsQuery {
     return {
       ...this.selected(),
-      q: this.currentQuery() || this.query.value || undefined,
       page: this.page(),
       pageSize: this.pageSize,
       sort: this.sort.value,
@@ -378,16 +326,17 @@ export class SearchPageComponent {
     };
   }
 
-  private applyResponse(response: PublicSearchResponseDto | null): void {
+  private applyResponse(response: PublicCollectionListResponseDto | null): void {
     this.loading.set(false);
     if (!response) {
       this.error.set(true);
       return;
     }
+    this.hero.set(response.hero);
+    this.collections.set(response.collections);
+    this.selectedCollection.set(response.selectedCollection);
     this.filters.set(response.filters);
-    this.products.set(response.items.map((item) => this.toStorefrontProduct(item)));
-    this.suggestions.set(response.suggestions);
-    this.popularSearches.set(response.popularSearches);
+    this.products.set(response.products.map((item) => this.toStorefrontProduct(item)));
     this.total.set(response.total);
   }
 

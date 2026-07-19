@@ -1,5 +1,7 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { QuickViewStore } from '../../state/quick-view/quick-view.store';
+import { WishlistStore } from '../../state/wishlist/wishlist.store';
 import { StorefrontProduct } from '../models/storefront-demo.models';
 import { formatPrice } from '../utilities/storefront-demo-data';
 
@@ -10,20 +12,20 @@ import { formatPrice } from '../utilities/storefront-demo-data';
   template: `
     <article class="product-card">
       <a class="product-media product-media-{{ product().imageTone }}" [routerLink]="['/saree', product().slug]">
-        @if (product().imageUrl) {
-          <img [src]="product().imageUrl" [alt]="product().name" loading="lazy">
-        }
+        <img [src]="product().imageUrl || fallbackImage(product().imageTone)" [alt]="product().name" loading="lazy">
+        <span class="saree-fold fold-one"></span>
+        <span class="saree-fold fold-two"></span>
+        <span class="saree-border"></span>
         <span class="stock-badge">{{ product().stock }}</span>
         <span class="discount-badge">{{ product().discount }}% off</span>
+        <span class="quick-view-overlay">View details</span>
       </a>
 
       <div class="product-card-body">
-        <div>
-          <p class="product-meta">{{ product().sareeType }} • {{ product().fabric }}</p>
-          <h3>
-            <a [routerLink]="['/saree', product().slug]">{{ product().name }}</a>
-          </h3>
-        </div>
+        <p class="product-meta">{{ product().sareeType }} · {{ product().fabric }}</p>
+        <h3>
+          <a [routerLink]="['/saree', product().slug]">{{ product().name }}</a>
+        </h3>
 
         <div class="price-row">
           <strong>{{ price(product().priceInPaise) }}</strong>
@@ -43,8 +45,10 @@ import { formatPrice } from '../utilities/storefront-demo-data';
         </div>
 
         <div class="product-actions">
-          <button type="button" aria-label="Add to wishlist">Wishlist</button>
-          <button type="button">Quick view</button>
+          <button type="button" [attr.aria-label]="wishlist.isSaved(product().slug) ? 'Remove from wishlist' : 'Add to wishlist'" (click)="toggleWishlist()">
+            {{ wishlist.isSaved(product().slug) ? '♥ Saved' : '♡ Wishlist' }}
+          </button>
+          <button type="button" (click)="openQuickView()">Quick view</button>
         </div>
       </div>
     </article>
@@ -52,8 +56,29 @@ import { formatPrice } from '../utilities/storefront-demo-data';
 })
 export class ProductCardComponent {
   readonly product = input.required<StorefrontProduct>();
+  protected readonly wishlist = inject(WishlistStore);
+  private readonly quickView = inject(QuickViewStore);
 
   protected price(value: number): string {
     return formatPrice(value);
+  }
+
+  protected fallbackImage(tone: string): string {
+    const images: Record<string, string> = {
+      emerald: '/images/home/emerald-saree-model.png',
+      ivory: '/images/home/ivory-saree-model.png',
+      plum: '/images/home/plum-saree-model.png',
+      wine: '/images/home/hero-saree-model.png',
+    };
+
+    return images[tone] ?? images['wine'];
+  }
+
+  protected toggleWishlist(): void {
+    this.wishlist.toggle(this.product());
+  }
+
+  protected openQuickView(): void {
+    this.quickView.open(this.product());
   }
 }

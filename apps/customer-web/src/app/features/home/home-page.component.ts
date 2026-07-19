@@ -33,8 +33,9 @@ import { HomeService } from './home.service';
         </dl>
       </div>
       <div class="hero-media product-media-{{ homepage.hero.imageTone }}" aria-label="Premium saree showcase">
+        <img class="hero-model-image" src="/images/home/hero-saree-model.png" alt="Model wearing a wine silk saree" fetchpriority="high">
         <span class="hero-badge">{{ homepage.hero.badge }}</span>
-        <span class="hero-caption">Homepage content and products are loaded from Node and MongoDB.</span>
+        <span class="hero-caption">Silk textures, rich borders, and standout product imagery.</span>
       </div>
     </section>
 
@@ -56,8 +57,8 @@ import { HomeService } from './home.service';
     @if (homepage.categories.length > 0) {
       <section class="boutique-section">
         <div class="section-heading">
-          <p class="eyebrow">Dynamic categories</p>
-          <h2>Categories are generated from MongoDB product data.</h2>
+          <p class="eyebrow">Curated categories</p>
+          <h2>Shop the latest saree categories from the live catalogue.</h2>
         </div>
         <div class="pill-grid category-pills" aria-label="Dynamic categories">
           @for (category of homepage.categories; track category.label) {
@@ -89,7 +90,7 @@ import { HomeService } from './home.service';
       <div class="section-heading row-heading">
         <div>
           <p class="eyebrow">Best sellers</p>
-          <h2>Customer favourites with stock badges and dummy saree imagery.</h2>
+          <h2>Customer favourites with bold product imagery and clear stock badges.</h2>
         </div>
         <a routerLink="/collections/best-sellers">View collection</a>
       </div>

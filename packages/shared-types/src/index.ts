@@ -307,9 +307,14 @@ export interface PublicProductCardDto {
   slug: string;
   name: string;
   productCode: string;
+  category?: string;
   sareeType?: string;
   fabric?: string;
   primaryColour?: string;
+  colours?: string[];
+  pattern?: string;
+  occasion?: string;
+  imageTone?: 'wine' | 'ivory' | 'plum' | 'emerald';
   coverImage?: PublicImageDto;
   mrpInPaise?: number;
   sellingPriceInPaise: number;
@@ -341,6 +346,14 @@ export interface PublicProductDetailDto extends PublicProductCardDto {
   images: PublicImageDto[];
   variants: PublicProductVariantDto[];
   relatedProductIds?: string[];
+  relatedProducts?: PublicProductCardDto[];
+  deliveryEstimate?: string;
+  codAvailable?: boolean;
+  returnWindow?: string;
+  sizeChart?: {
+    label: string;
+    value: string;
+  }[];
 }
 
 export interface PublicProductListResponseDto {
@@ -352,6 +365,50 @@ export interface PublicProductListResponseDto {
 }
 
 export type PublicStorefrontImageTone = 'wine' | 'ivory' | 'plum' | 'emerald';
+
+export interface PublicCollectionDto {
+  slug: string;
+  title: string;
+  description: string;
+  imageTone: PublicStorefrontImageTone;
+  productCount: number;
+  startingPriceInPaise?: number;
+  badge?: string;
+  filters: PublicProductFilterValueDto[];
+}
+
+export interface PublicCollectionListResponseDto {
+  hero: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    imageTone: PublicStorefrontImageTone;
+  };
+  collections: PublicCollectionDto[];
+  selectedCollection?: PublicCollectionDto;
+  products: PublicProductCardDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  filters: PublicProductFilterGroupDto[];
+}
+
+export interface PublicSearchSuggestionDto {
+  label: string;
+  query: string;
+  type: 'fabric' | 'colour' | 'occasion' | 'category' | 'popular';
+}
+
+export interface PublicSearchResponseDto {
+  query?: string;
+  suggestions: PublicSearchSuggestionDto[];
+  popularSearches: PublicSearchSuggestionDto[];
+  items: PublicProductCardDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  filters: PublicProductFilterGroupDto[];
+}
 
 export interface PublicHomepageProductDto {
   id: string;

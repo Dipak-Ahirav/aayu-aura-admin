@@ -87,6 +87,12 @@ import {
   updateBusinessSettings,
 } from '../domain/settings/settings.controller.js';
 import { storefrontHome } from '../domain/storefront-home/storefront-home.controller.js';
+import { storefrontCollections } from '../domain/storefront-collections/storefront-collections.controller.js';
+import {
+  storefrontProductDetail,
+  storefrontProducts,
+} from '../domain/storefront-products/storefront-products.controller.js';
+import { storefrontSearch } from '../domain/storefront-search/storefront-search.controller.js';
 import {
   cancelReturn,
   createExchange,
@@ -132,6 +138,11 @@ v1Router.get('/ready', (_req, res) => {
 });
 
 v1Router.get('/public/home', storefrontHome);
+v1Router.get('/public/collections', storefrontCollections);
+v1Router.get('/public/collections/:collectionSlug', storefrontCollections);
+v1Router.get('/public/products/:productSlug', storefrontProductDetail);
+v1Router.get('/public/products', storefrontProducts);
+v1Router.get('/public/search', storefrontSearch);
 v1Router.post('/auth/login', login);
 v1Router.get('/auth/me', authenticate, me);
 v1Router.get('/dashboard/summary', authenticate, dashboardSummary);

@@ -22,14 +22,15 @@ export const routes: Routes = [
       {
         path: 'collections',
         loadComponent: () =>
-          import('./features/content/content-page.component').then((m) => m.ContentPageComponent),
-        data: { title: 'Collections', description: 'Curated saree collections.' },
+          import('./features/collections/collections-page.component').then(
+            (m) => m.CollectionsPageComponent,
+          ),
       },
       {
         path: 'collections/:collectionSlug',
         loadComponent: () =>
-          import('./features/catalogue/catalogue-page.component').then(
-            (m) => m.CataloguePageComponent,
+          import('./features/collections/collections-page.component').then(
+            (m) => m.CollectionsPageComponent,
           ),
       },
       {
