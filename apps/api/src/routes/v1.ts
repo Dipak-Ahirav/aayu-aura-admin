@@ -94,6 +94,10 @@ import {
 } from '../domain/storefront-products/storefront-products.controller.js';
 import { storefrontSearch } from '../domain/storefront-search/storefront-search.controller.js';
 import {
+  storefrontDownloadInvoice,
+  storefrontTrackOrder,
+} from '../domain/storefront-tracking/storefront-tracking.controller.js';
+import {
   cancelReturn,
   createExchange,
   createReturn,
@@ -143,6 +147,11 @@ v1Router.get('/public/collections/:collectionSlug', storefrontCollections);
 v1Router.get('/public/products/:productSlug', storefrontProductDetail);
 v1Router.get('/public/products', storefrontProducts);
 v1Router.get('/public/search', storefrontSearch);
+v1Router.post('/public/track-order', storefrontTrackOrder);
+v1Router.get(
+  '/public/track-order/:orderNumber/invoice/:invoiceId/pdf',
+  storefrontDownloadInvoice,
+);
 v1Router.post('/auth/login', login);
 v1Router.get('/auth/me', authenticate, me);
 v1Router.get('/dashboard/summary', authenticate, dashboardSummary);

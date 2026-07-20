@@ -540,6 +540,75 @@ export interface CustomerOrderDto {
   returnAllowed: boolean;
 }
 
+export interface PublicOrderTrackingRequestDto {
+  orderNumber: string;
+  identifier: string;
+}
+
+export interface PublicOrderTrackingTimelineStepDto {
+  label: string;
+  description: string;
+  completed: boolean;
+  current: boolean;
+  date?: string;
+}
+
+export interface PublicOrderTrackingShipmentDto {
+  shipmentNumber?: string;
+  courier?: string;
+  trackingNumber?: string;
+  status: ShipmentStatus | 'Not shipped';
+  dispatchDate?: string;
+  expectedDeliveryDate?: string;
+  deliveredAt?: string;
+}
+
+export interface PublicOrderTrackingInvoiceDto {
+  id: string;
+  invoiceNumber: string;
+  status: InvoiceStatus;
+  downloadUrl: string;
+}
+
+export interface PublicOrderTrackingReturnDto {
+  returnNumber: string;
+  status: ReturnStatus;
+  resolution: ReturnResolution;
+  refundAmountInPaise: number;
+  exchangeProductName?: string;
+  requestedDate: string;
+  closedAt?: string;
+}
+
+export interface PublicOrderTrackingDto {
+  order: {
+    id: string;
+    orderNumber: string;
+    placedAt: string;
+    customerName: string;
+    maskedIdentifier: string;
+    status: CustomerFriendlyOrderStatus;
+    fulfilmentStatus: OrderFulfilmentStatus;
+    paymentStatus: OrderPaymentStatus;
+    totalInPaise: number;
+    paidAmountInPaise: number;
+    dueAmountInPaise: number;
+    itemCount: number;
+    deliveryAddress?: string;
+    cancellationAllowed: boolean;
+    returnAllowed: boolean;
+  };
+  items: CustomerOrderItemDto[];
+  timeline: PublicOrderTrackingTimelineStepDto[];
+  shipment?: PublicOrderTrackingShipmentDto;
+  invoice?: PublicOrderTrackingInvoiceDto;
+  returns: PublicOrderTrackingReturnDto[];
+  support: {
+    whatsappUrl: string;
+    message: string;
+  };
+}
+
 export interface BusinessSettingsDto {
   displayName: string;
   legalName?: string;
