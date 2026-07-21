@@ -6,6 +6,7 @@ import { debounceTime } from 'rxjs';
 import type { PublicCartQuoteDto, PublicCartQuoteLineDto } from '@aayu-aura/shared-types';
 import { formatPrice } from '../../shared/utilities/storefront-demo-data';
 import { CartStore } from '../../state/cart/cart.store';
+import type { CartLine } from '../../state/cart/cart.store';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
 import { CartQuoteService } from './cart-quote.service';
 
@@ -26,13 +27,14 @@ import { CartQuoteService } from './cart-quote.service';
             <span>Explore fresh sarees, save favourites, and come back to checkout when ready.</span>
             <a class="button primary" routerLink="/shop">Continue shopping</a>
           </div>
-        } @else if (loading()) {
-          <div class="cart-loading-list">
-            @for (item of [1, 2, 3]; track item) {
-              <span></span>
-            }
-          </div>
-        } @else if (quote(); as cartQuote) {
+        } @else {
+          @if (loading()) {
+            <div class="cart-message-list">
+              <span>Refreshing live price and stock...</span>
+            </div>
+          }
+
+          @if (quote(); as cartQuote) {
           @if (cartQuote.messages.length > 0) {
             <div class="cart-message-list">
               @for (message of cartQuote.messages; track message) {
@@ -41,6 +43,7 @@ import { CartQuoteService } from './cart-quote.service';
             </div>
           }
 
+          @if (cartQuote.items.length > 0) {
           <div class="cart-line-list">
             @for (line of cartQuote.items; track line.productSlug) {
               <article class="cart-line">
@@ -73,6 +76,35 @@ import { CartQuoteService } from './cart-quote.service';
               </article>
             }
           </div>
+          } @else {
+            <div class="cart-line-list">
+              @for (line of cart.items(); track line.productSlug) {
+                <article class="cart-line">
+                  <a class="mini-media product-media-{{ line.imageTone ?? 'wine' }}" [routerLink]="['/saree', line.productSlug]">
+                    <img [src]="line.imageUrl || fallbackImage(line.imageTone)" [alt]="line.name" loading="lazy">
+                  </a>
+                  <div class="cart-line-copy">
+                    <span class="stock-badge inline">{{ line.stock || 'Added to cart' }}</span>
+                    <h2><a [routerLink]="['/saree', line.productSlug]">{{ line.name }}</a></h2>
+                    <p>{{ line.productCode || 'Product details pending live quote' }}</p>
+                    <small>Live quote unavailable for this item. You can remove it or refresh after the API syncs.</small>
+                    <div class="cart-line-actions">
+                      <button type="button" (click)="cart.remove(line.productSlug)">Remove</button>
+                    </div>
+                  </div>
+                  <div class="quantity-stepper" aria-label="Quantity">
+                    <button type="button" (click)="decreaseLocal(line)">-</button>
+                    <span>{{ line.quantity }}</span>
+                    <button type="button" (click)="increaseLocal(line)">+</button>
+                  </div>
+                  <div class="cart-line-price">
+                    <strong>{{ price(localLineTotal(line)) }}</strong>
+                    <span>Local cart price</span>
+                  </div>
+                </article>
+              }
+            </div>
+          }
 
           @if (cartQuote.unavailableItems.length > 0) {
             <div class="empty-state">
@@ -80,18 +112,45 @@ import { CartQuoteService } from './cart-quote.service';
               <span>These products are no longer available in the live catalogue and were excluded from totals.</span>
             </div>
           }
-        } @else {
-          <div class="empty-state">
-            <strong>Cart quote unavailable</strong>
-            <span>Start the API and MongoDB connection, then refresh this cart.</span>
-            <button type="button" (click)="quoteCart()">Try again</button>
-          </div>
+          } @else {
+            <div class="cart-message-list">
+              <span>Live cart quote is unavailable. Showing saved cart items.</span>
+            </div>
+            <div class="cart-line-list">
+              @for (line of cart.items(); track line.productSlug) {
+                <article class="cart-line">
+                  <a class="mini-media product-media-{{ line.imageTone ?? 'wine' }}" [routerLink]="['/saree', line.productSlug]">
+                    <img [src]="line.imageUrl || fallbackImage(line.imageTone)" [alt]="line.name" loading="lazy">
+                  </a>
+                  <div class="cart-line-copy">
+                    <span class="stock-badge inline">{{ line.stock || 'Added to cart' }}</span>
+                    <h2><a [routerLink]="['/saree', line.productSlug]">{{ line.name }}</a></h2>
+                    <p>{{ line.productCode || 'Product details pending live quote' }}</p>
+                    <div class="cart-line-actions">
+                      <button type="button" (click)="cart.remove(line.productSlug)">Remove</button>
+                      <button type="button" (click)="quoteCart()">Refresh quote</button>
+                    </div>
+                  </div>
+                  <div class="quantity-stepper" aria-label="Quantity">
+                    <button type="button" (click)="decreaseLocal(line)">-</button>
+                    <span>{{ line.quantity }}</span>
+                    <button type="button" (click)="increaseLocal(line)">+</button>
+                  </div>
+                  <div class="cart-line-price">
+                    <strong>{{ price(localLineTotal(line)) }}</strong>
+                    <span>Local cart price</span>
+                  </div>
+                </article>
+              }
+            </div>
+          }
         }
       </div>
 
       <aside class="summary-panel">
         <h2>Price breakdown</h2>
-        @if (quote(); as cartQuote) {
+        @if (hasPricedQuote()) {
+          @if (quote(); as cartQuote) {
           <dl>
             <div><dt>MRP total</dt><dd>{{ price(cartQuote.subtotalInPaise) }}</dd></div>
             <div><dt>Product discount</dt><dd>- {{ price(cartQuote.productDiscountInPaise) }}</dd></div>
@@ -102,12 +161,17 @@ import { CartQuoteService } from './cart-quote.service';
           </dl>
           <p>{{ cartQuote.deliveryEstimate }}</p>
           <p>{{ cartQuote.codAvailable ? 'COD available for this cart where serviceable.' : 'COD may not be available for this cart.' }}</p>
+          }
         } @else {
           <dl>
-            <div><dt>Subtotal</dt><dd>{{ price(cart.subtotalInPaise()) }}</dd></div>
-            <div><dt>Shipping</dt><dd>Calculated after API quote</dd></div>
-            <div><dt>Total</dt><dd>{{ price(cart.subtotalInPaise()) }}</dd></div>
+            <div><dt>MRP total</dt><dd>{{ price(localTotal()) }}</dd></div>
+            <div><dt>Product discount</dt><dd>- {{ price(0) }}</dd></div>
+            <div><dt>Coupon discount</dt><dd>- {{ price(0) }}</dd></div>
+            <div><dt>Shipping</dt><dd>Calculated after live quote</dd></div>
+            <div><dt>Tax</dt><dd>Included after live quote</dd></div>
+            <div><dt>Total</dt><dd>{{ price(localTotal()) }}</dd></div>
           </dl>
+          <p>Saved cart details are shown locally. Refresh quote for live stock and checkout totals.</p>
         }
         <label class="field">
           <span>Coupon code</span>
@@ -176,6 +240,9 @@ export class CartPageComponent {
       .subscribe((quote) => {
         this.loading.set(false);
         this.quote.set(quote);
+        if (quote?.items.length) {
+          this.cart.syncQuotedLines(quote.items);
+        }
       });
   }
 
@@ -185,6 +252,22 @@ export class CartPageComponent {
 
   protected decrease(line: PublicCartQuoteLineDto): void {
     this.cart.updateQuantity(line.productSlug, line.quantity - 1);
+  }
+
+  protected increaseLocal(line: CartLine): void {
+    this.cart.updateQuantity(line.productSlug, line.quantity + 1);
+  }
+
+  protected decreaseLocal(line: CartLine): void {
+    this.cart.updateQuantity(line.productSlug, line.quantity - 1);
+  }
+
+  protected localLineTotal(line: CartLine): number {
+    return line.quantity * line.unitPriceInPaise;
+  }
+
+  protected localTotal(): number {
+    return this.cart.items().reduce((total, line) => total + this.localLineTotal(line), 0);
   }
 
   protected moveToWishlist(line: PublicCartQuoteLineDto): void {
@@ -213,6 +296,10 @@ export class CartPageComponent {
   }
 
   protected canCheckout(): boolean {
+    return this.hasPricedQuote();
+  }
+
+  protected hasPricedQuote(): boolean {
     return Boolean(this.quote()?.items.length);
   }
 

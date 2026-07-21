@@ -122,6 +122,7 @@ function toHomepageProduct(product: ProductWithId, index: number): PublicHomepag
 
   return {
     id: product._id.toString(),
+    productCode: product.sku,
     slug: slugify(name || product.sku || demo.slug),
     name,
     category: product.category,

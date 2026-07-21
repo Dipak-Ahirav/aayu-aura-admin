@@ -49,7 +49,7 @@ import { formatPrice } from '../utilities/storefront-demo-data';
           <button type="button" [attr.aria-label]="wishlist.isSaved(product().slug) ? 'Remove from wishlist' : 'Add to wishlist'" (click)="toggleWishlist()">
             {{ wishlist.isSaved(product().slug) ? '♥ Saved' : '♡ Wishlist' }}
           </button>
-          <button type="button" [disabled]="product().stock === 'Out of stock'" (click)="addToCart()">
+          <button type="button" [disabled]="product().stock === 'Out of stock'" (click)="addToCart($event)">
             {{ product().stock === 'Out of stock' ? 'Sold out' : 'Add cart' }}
           </button>
           <button type="button" (click)="openQuickView()">Quick view</button>
@@ -87,7 +87,9 @@ export class ProductCardComponent {
     this.quickView.open(this.product());
   }
 
-  protected addToCart(): void {
+  protected addToCart(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
     this.cart.add(this.product());
   }
 }

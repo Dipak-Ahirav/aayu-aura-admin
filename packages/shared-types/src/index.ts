@@ -412,6 +412,7 @@ export interface PublicSearchResponseDto {
 
 export interface PublicHomepageProductDto {
   id: string;
+  productCode?: string;
   slug: string;
   name: string;
   category?: string;

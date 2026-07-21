@@ -11,6 +11,52 @@ import type { PublicCartQuoteInput } from './storefront-cart.schemas.js';
 type ProductWithId = ProductDocument & { _id: Types.ObjectId };
 
 const tones: PublicStorefrontImageTone[] = ['wine', 'ivory', 'plum', 'emerald'];
+const demoProducts = [
+  {
+    productId: 'demo-wine-kanjivaram',
+    productSlug: 'wine-kanjivaram-silk-saree',
+    productCode: 'AA-DEMO-001',
+    name: 'Wine Kanjivaram Silk Saree',
+    category: 'Silk Sarees',
+    unitPriceInPaise: 1299900,
+    mrpInPaise: 1599900,
+    imageTone: 'wine' as const,
+    availableStock: 3,
+  },
+  {
+    productId: 'demo-ivory-chanderi',
+    productSlug: 'ivory-chanderi-party-saree',
+    productCode: 'AA-DEMO-002',
+    name: 'Ivory Chanderi Party Saree',
+    category: 'Designer Sarees',
+    unitPriceInPaise: 749900,
+    mrpInPaise: 949900,
+    imageTone: 'ivory' as const,
+    availableStock: 8,
+  },
+  {
+    productId: 'demo-plum-georgette',
+    productSlug: 'plum-georgette-embroidered-saree',
+    productCode: 'AA-DEMO-003',
+    name: 'Plum Georgette Embroidered Saree',
+    category: 'Party Wear',
+    unitPriceInPaise: 589900,
+    mrpInPaise: 799900,
+    imageTone: 'plum' as const,
+    availableStock: 8,
+  },
+  {
+    productId: 'demo-emerald-banarasi',
+    productSlug: 'emerald-banarasi-wedding-saree',
+    productCode: 'AA-DEMO-004',
+    name: 'Emerald Banarasi Wedding Saree',
+    category: 'Banarasi Sarees',
+    unitPriceInPaise: 1099900,
+    mrpInPaise: 1399900,
+    imageTone: 'emerald' as const,
+    availableStock: 8,
+  },
+];
 
 function slugify(value: string): string {
   return (value.trim() || 'saree')
@@ -54,6 +100,55 @@ function matchesLine(product: ProductWithId, line: PublicCartQuoteLineInputDto):
   return false;
 }
 
+function demoLine(line: PublicCartQuoteLineInputDto) {
+  return demoProducts.find((product) =>
+    Boolean(
+      (line.productId && product.productId === line.productId) ||
+        (line.productCode &&
+          product.productCode.toLowerCase() === line.productCode.toLowerCase()) ||
+        (line.productSlug && product.productSlug === line.productSlug),
+    ),
+  );
+}
+
+function quoteDemoLine(line: PublicCartQuoteLineInputDto) {
+  const product = demoLine(line);
+  if (!product) return null;
+
+  const requestedQuantity = line.quantity;
+  const quantity = Math.min(requestedQuantity, product.availableStock);
+  const lineSubtotalInPaise = product.mrpInPaise * quantity;
+  const lineTotalInPaise = product.unitPriceInPaise * quantity;
+  const lineDiscountInPaise = Math.max(lineSubtotalInPaise - lineTotalInPaise, 0);
+
+  return {
+    productId: product.productId,
+    productSlug: product.productSlug,
+    productCode: product.productCode,
+    name: product.name,
+    category: product.category,
+    image: {
+      url: `/images/home/${product.imageTone === 'wine' ? 'hero' : product.imageTone}-saree-model.png`,
+      altText: product.name,
+    },
+    imageTone: product.imageTone,
+    quantity,
+    requestedQuantity,
+    unitPriceInPaise: product.unitPriceInPaise,
+    mrpInPaise: product.mrpInPaise,
+    discountPercentage: Math.round(
+      ((product.mrpInPaise - product.unitPriceInPaise) / product.mrpInPaise) * 100,
+    ),
+    lineSubtotalInPaise,
+    lineDiscountInPaise,
+    lineTotalInPaise,
+    availability: product.availableStock <= 3 ? 'only_few_left' as const : 'in_stock' as const,
+    availableStock: product.availableStock,
+    stockMessage: product.availableStock <= 3 ? `Only ${product.availableStock} left` : 'In stock',
+    isQuantityAdjusted: quantity !== requestedQuantity,
+  };
+}
+
 function couponDiscount(subtotal: number, code?: string): { discount: number; message?: string } {
   const normalised = (code ?? '').trim().toUpperCase();
   if (!normalised) return { discount: 0 };
@@ -80,6 +175,11 @@ export async function quotePublicCart(input: PublicCartQuoteInput): Promise<Publ
   for (const line of input.items) {
     const product = products.find((row) => matchesLine(row, line));
     if (!product) {
+      const demo = quoteDemoLine(line);
+      if (demo) {
+        items.push(demo);
+        continue;
+      }
       unavailableItems.push(line);
       continue;
     }

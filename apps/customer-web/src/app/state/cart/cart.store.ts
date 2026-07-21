@@ -102,6 +102,7 @@ export class CartStore {
         stock: line.stockMessage,
       };
     });
+    if (JSON.stringify(next) === JSON.stringify(this.lines())) return;
     this.commit(next);
   }
 
