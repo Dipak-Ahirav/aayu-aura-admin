@@ -24,6 +24,12 @@ import {
   listCustomers,
   updateCustomer,
 } from '../domain/customers/customer.controller.js';
+import {
+  customerLogin,
+  customerMe,
+  customerOAuth,
+  customerRegister,
+} from '../domain/customer-auth/customer-auth.controller.js';
 import { dashboardSummary } from '../domain/dashboard/dashboard.controller.js';
 import {
   cancelExpense,
@@ -146,6 +152,10 @@ v1Router.get('/ready', (_req, res) => {
 v1Router.get('/public/home', storefrontHome);
 v1Router.post('/public/cart/quote', storefrontCartQuote);
 v1Router.post('/public/checkout', storefrontCheckout);
+v1Router.post('/public/customer-auth/register', customerRegister);
+v1Router.post('/public/customer-auth/login', customerLogin);
+v1Router.post('/public/customer-auth/oauth', customerOAuth);
+v1Router.get('/public/customer-auth/me', customerMe);
 v1Router.get('/public/collections', storefrontCollections);
 v1Router.get('/public/collections/:collectionSlug', storefrontCollections);
 v1Router.get('/public/products/:productSlug', storefrontProductDetail);

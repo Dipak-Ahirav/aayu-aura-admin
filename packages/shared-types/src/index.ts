@@ -821,6 +821,44 @@ export interface CustomerListDto {
   summary: CustomerSummaryDto;
 }
 
+export interface CustomerAuthProfileDto {
+  id: string;
+  name: string;
+  mobile: string;
+  email?: string;
+  consentEmail: boolean;
+  consentWhatsApp: boolean;
+}
+
+export interface CustomerAuthResponseDto {
+  profile: CustomerAuthProfileDto;
+  accessToken: string;
+}
+
+export interface CustomerRegisterRequestDto {
+  name: string;
+  email?: string;
+  mobile: string;
+  password: string;
+  termsAccepted: boolean;
+  marketingConsent?: boolean;
+}
+
+export interface CustomerLoginRequestDto {
+  identifier: string;
+  password: string;
+}
+
+export type CustomerOAuthProvider = 'google';
+
+export interface CustomerOAuthRequestDto {
+  provider: CustomerOAuthProvider;
+  idToken?: string;
+  email?: string;
+  name?: string;
+  providerAccountId?: string;
+}
+
 export type MasterDataType = 'Catalogue' | 'Inventory' | 'Finance' | 'Order setup';
 
 export type MasterDataStatus = 'active' | 'inactive' | 'protected';

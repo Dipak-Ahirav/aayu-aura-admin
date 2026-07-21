@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CartStore } from '../../state/cart/cart.store';
 import { StorefrontStore } from '../../state/storefront/storefront.store';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
+import { CustomerSessionStore } from '../../state/session/customer-session.store';
 
 @Component({
   selector: 'aac-header',
@@ -27,13 +28,14 @@ import { WishlistStore } from '../../state/wishlist/wishlist.store';
         <a class="whatsapp-link" href="https://wa.me/" target="_blank" rel="noreferrer">WhatsApp</a>
         <a routerLink="/wishlist" aria-label="Wishlist">Wishlist {{ wishlist.count() }}</a>
         <a class="cart-pill" routerLink="/cart" aria-label="Cart">Cart {{ cart.itemCount() }}</a>
-        <a routerLink="/account" aria-label="Account">Account</a>
+        <a routerLink="/account" aria-label="Account">{{ session.currentCustomer()?.name || 'Account' }}</a>
       </div>
     </header>
   `,
 })
 export class HeaderComponent {
   protected readonly cart = inject(CartStore);
+  protected readonly session = inject(CustomerSessionStore);
   protected readonly storefront = inject(StorefrontStore);
   protected readonly wishlist = inject(WishlistStore);
 }

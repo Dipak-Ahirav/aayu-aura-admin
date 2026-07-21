@@ -7,6 +7,7 @@ import type { PublicCartQuoteDto, PublicCartQuoteLineDto } from '@aayu-aura/shar
 import { formatPrice } from '../../shared/utilities/storefront-demo-data';
 import { CartStore } from '../../state/cart/cart.store';
 import type { CartLine } from '../../state/cart/cart.store';
+import { CustomerSessionStore } from '../../state/session/customer-session.store';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
 import { CartQuoteService } from './cart-quote.service';
 
@@ -182,8 +183,13 @@ import { CartQuoteService } from './cart-quote.service';
           <input [formControl]="pinCode" inputmode="numeric" placeholder="400001">
         </label>
         <button type="button" (click)="quoteCart()">Apply / refresh</button>
-        <a class="button primary" [class.is-disabled]="!canCheckout()" routerLink="/checkout">Guest checkout</a>
-        <a class="button secondary" routerLink="/login">Login and checkout</a>
+        @if (session.isAuthenticated()) {
+          <a class="button primary" [class.is-disabled]="!canCheckout()" routerLink="/checkout">Checkout</a>
+          <p class="auth-note">Checking out as {{ session.currentCustomer()?.name }}.</p>
+        } @else {
+          <a class="button primary" [class.is-disabled]="!canCheckout()" routerLink="/checkout">Guest checkout</a>
+          <a class="button secondary" routerLink="/login" [queryParams]="{ returnUrl: '/checkout' }">Login and checkout</a>
+        }
         <button type="button" [disabled]="cart.items().length === 0" (click)="cart.clear()">Clear cart</button>
       </aside>
     </section>
@@ -191,6 +197,7 @@ import { CartQuoteService } from './cart-quote.service';
 })
 export class CartPageComponent {
   protected readonly cart = inject(CartStore);
+  protected readonly session = inject(CustomerSessionStore);
   private readonly wishlist = inject(WishlistStore);
   private readonly quoteService = inject(CartQuoteService);
   private readonly destroyRef = inject(DestroyRef);

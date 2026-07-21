@@ -10,6 +10,7 @@ import type {
 } from '@aayu-aura/shared-types';
 import { formatPrice } from '../../shared/utilities/storefront-demo-data';
 import { CartStore } from '../../state/cart/cart.store';
+import { CustomerSessionStore } from '../../state/session/customer-session.store';
 import { CartQuoteService } from '../cart/cart-quote.service';
 import { CheckoutService } from './checkout.service';
 
@@ -21,7 +22,7 @@ import { CheckoutService } from './checkout.service';
     <section class="checkout-layout dynamic-checkout">
       <form class="cart-panel checkout-panel" [formGroup]="addressForm" (ngSubmit)="placeOrder()">
         <p class="eyebrow">Checkout</p>
-        <h1>Guest checkout</h1>
+        <h1>{{ session.isAuthenticated() ? 'Checkout' : 'Guest checkout' }}</h1>
         <div class="checkout-steps" aria-label="Checkout steps">
           <span class="is-active">Address</span>
           <span>Delivery</span>
@@ -147,6 +148,7 @@ import { CheckoutService } from './checkout.service';
 })
 export class CheckoutPageComponent {
   protected readonly cart = inject(CartStore);
+  protected readonly session = inject(CustomerSessionStore);
   private readonly cartQuote = inject(CartQuoteService);
   private readonly checkout = inject(CheckoutService);
   private readonly destroyRef = inject(DestroyRef);
@@ -173,6 +175,15 @@ export class CheckoutPageComponent {
   });
 
   constructor() {
+    const customer = this.session.currentCustomer();
+    if (customer) {
+      this.addressForm.patchValue({
+        fullName: customer.name,
+        mobile: customer.mobile ?? '',
+        email: customer.email ?? '',
+      });
+    }
+
     effect(() => {
       this.cart.items();
       queueMicrotask(() => this.refreshQuote());
