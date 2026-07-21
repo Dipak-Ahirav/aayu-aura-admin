@@ -11,6 +11,7 @@ import { ProductCardComponent } from '../../shared/ui/product-card.component';
 import { StorefrontProduct } from '../../shared/models/storefront-demo.models';
 import { formatPrice } from '../../shared/utilities/storefront-demo-data';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
+import { CartStore } from '../../state/cart/cart.store';
 import { ProductDetailService } from './product-detail.service';
 
 @Component({
@@ -77,7 +78,9 @@ import { ProductDetailService } from './product-detail.service';
             </div>
 
             <div class="product-cta">
-              <button class="button primary" type="button">Add to cart</button>
+              <button class="button primary" type="button" [disabled]="stockText(product.availability) === 'Out of stock'" (click)="cart.add(cardFromDetail(product))">
+                {{ stockText(product.availability) === 'Out of stock' ? 'Sold out' : 'Add to cart' }}
+              </button>
               <button class="button secondary" type="button" (click)="wishlist.toggle(cardFromDetail(product))">
                 {{ wishlist.isSaved(product.slug) ? 'Remove wishlist' : 'Add wishlist' }}
               </button>
@@ -159,6 +162,7 @@ export class ProductDetailPageComponent {
   private readonly productDetail = inject(ProductDetailService);
   private readonly route = inject(ActivatedRoute);
   protected readonly wishlist = inject(WishlistStore);
+  protected readonly cart = inject(CartStore);
   protected readonly product$ = this.route.paramMap.pipe(
     map((params) => params.get('productSlug') ?? ''),
     switchMap((slug) => this.productDetail.get(slug)),
@@ -188,6 +192,8 @@ export class ProductDetailPageComponent {
 
   private cardFromDto(product: PublicProductCardDto): StorefrontProduct {
     return {
+      id: product.id,
+      productCode: product.productCode,
       slug: product.slug,
       name: product.name,
       category: product.category ?? product.sareeType ?? 'Sarees',

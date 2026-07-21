@@ -292,6 +292,8 @@ export class CataloguePageComponent {
 
   private toStorefrontProduct(product: PublicProductCardDto): StorefrontProduct {
     return {
+      id: product.id,
+      productCode: product.productCode,
       slug: product.slug,
       name: product.name,
       category: product.category ?? product.sareeType ?? 'Sarees',

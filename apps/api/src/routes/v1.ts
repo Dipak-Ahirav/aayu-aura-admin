@@ -87,6 +87,8 @@ import {
   updateBusinessSettings,
 } from '../domain/settings/settings.controller.js';
 import { storefrontHome } from '../domain/storefront-home/storefront-home.controller.js';
+import { storefrontCartQuote } from '../domain/storefront-cart/storefront-cart.controller.js';
+import { storefrontCheckout } from '../domain/storefront-checkout/storefront-checkout.controller.js';
 import { storefrontCollections } from '../domain/storefront-collections/storefront-collections.controller.js';
 import {
   storefrontProductDetail,
@@ -142,6 +144,8 @@ v1Router.get('/ready', (_req, res) => {
 });
 
 v1Router.get('/public/home', storefrontHome);
+v1Router.post('/public/cart/quote', storefrontCartQuote);
+v1Router.post('/public/checkout', storefrontCheckout);
 v1Router.get('/public/collections', storefrontCollections);
 v1Router.get('/public/collections/:collectionSlug', storefrontCollections);
 v1Router.get('/public/products/:productSlug', storefrontProductDetail);

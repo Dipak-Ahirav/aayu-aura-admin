@@ -2,6 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { QuickViewStore } from '../../state/quick-view/quick-view.store';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
+import { CartStore } from '../../state/cart/cart.store';
 import { StorefrontProduct } from '../models/storefront-demo.models';
 import { formatPrice } from '../utilities/storefront-demo-data';
 
@@ -48,6 +49,9 @@ import { formatPrice } from '../utilities/storefront-demo-data';
           <button type="button" [attr.aria-label]="wishlist.isSaved(product().slug) ? 'Remove from wishlist' : 'Add to wishlist'" (click)="toggleWishlist()">
             {{ wishlist.isSaved(product().slug) ? '♥ Saved' : '♡ Wishlist' }}
           </button>
+          <button type="button" [disabled]="product().stock === 'Out of stock'" (click)="addToCart()">
+            {{ product().stock === 'Out of stock' ? 'Sold out' : 'Add cart' }}
+          </button>
           <button type="button" (click)="openQuickView()">Quick view</button>
         </div>
       </div>
@@ -57,6 +61,7 @@ import { formatPrice } from '../utilities/storefront-demo-data';
 export class ProductCardComponent {
   readonly product = input.required<StorefrontProduct>();
   protected readonly wishlist = inject(WishlistStore);
+  protected readonly cart = inject(CartStore);
   private readonly quickView = inject(QuickViewStore);
 
   protected price(value: number): string {
@@ -80,5 +85,9 @@ export class ProductCardComponent {
 
   protected openQuickView(): void {
     this.quickView.open(this.product());
+  }
+
+  protected addToCart(): void {
+    this.cart.add(this.product());
   }
 }

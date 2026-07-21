@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { QuickViewStore } from '../../state/quick-view/quick-view.store';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
+import { CartStore } from '../../state/cart/cart.store';
 import { formatPrice } from '../utilities/storefront-demo-data';
 
 @Component({
@@ -49,7 +50,9 @@ import { formatPrice } from '../utilities/storefront-demo-data';
             </div>
 
             <div class="product-cta">
-              <button class="button primary" type="button">Add to cart</button>
+              <button class="button primary" type="button" [disabled]="product.stock === 'Out of stock'" (click)="cart.add(product)">
+                {{ product.stock === 'Out of stock' ? 'Sold out' : 'Add to cart' }}
+              </button>
               <button class="button secondary" type="button" (click)="wishlist.toggle(product)">
                 {{ wishlist.isSaved(product.slug) ? 'Remove wishlist' : 'Add wishlist' }}
               </button>
@@ -65,6 +68,7 @@ import { formatPrice } from '../utilities/storefront-demo-data';
 export class QuickViewModalComponent {
   protected readonly quickView = inject(QuickViewStore);
   protected readonly wishlist = inject(WishlistStore);
+  protected readonly cart = inject(CartStore);
 
   protected price(value: number): string {
     return formatPrice(value);

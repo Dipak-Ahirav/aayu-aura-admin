@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import type { PublicOrderTrackingDto } from '@aayu-aura/shared-types';
 import { formatPrice } from '../../shared/utilities/storefront-demo-data';
 import { TrackOrderService } from './track-order.service';
@@ -162,6 +163,7 @@ import { TrackOrderService } from './track-order.service';
 })
 export class TrackOrderPageComponent {
   private readonly trackingService = inject(TrackOrderService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly form = new FormGroup({
     orderNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -172,6 +174,14 @@ export class TrackOrderPageComponent {
   protected readonly error = signal(false);
   protected readonly tracking = signal<PublicOrderTrackingDto | null>(null);
   protected readonly supportUrl = computed(() => this.tracking()?.support.whatsappUrl ?? 'https://wa.me/');
+
+  constructor() {
+    const orderNumber = this.route.snapshot.queryParamMap.get('orderNumber') ?? '';
+    const identifier = this.route.snapshot.queryParamMap.get('identifier') ?? '';
+    if (orderNumber) this.form.controls.orderNumber.setValue(orderNumber);
+    if (identifier) this.form.controls.identifier.setValue(identifier);
+    if (orderNumber && identifier) queueMicrotask(() => this.track());
+  }
 
   protected track(): void {
     if (this.form.invalid) {

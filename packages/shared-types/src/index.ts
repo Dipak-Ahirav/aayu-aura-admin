@@ -609,6 +609,96 @@ export interface PublicOrderTrackingDto {
   };
 }
 
+export interface PublicCartQuoteLineInputDto {
+  productId?: string;
+  productSlug?: string;
+  productCode?: string;
+  quantity: number;
+}
+
+export interface PublicCartQuoteRequestDto {
+  items: PublicCartQuoteLineInputDto[];
+  couponCode?: string;
+  pinCode?: string;
+}
+
+export interface PublicCartQuoteLineDto {
+  productId: string;
+  productSlug: string;
+  productCode: string;
+  name: string;
+  category?: string;
+  image?: PublicImageDto;
+  imageTone?: PublicStorefrontImageTone;
+  quantity: number;
+  requestedQuantity: number;
+  unitPriceInPaise: number;
+  mrpInPaise?: number;
+  discountPercentage?: number;
+  lineSubtotalInPaise: number;
+  lineDiscountInPaise: number;
+  lineTotalInPaise: number;
+  availability: CustomerAvailabilityStatus;
+  availableStock: number;
+  stockMessage: string;
+  isQuantityAdjusted: boolean;
+}
+
+export interface PublicCartQuoteDto {
+  items: PublicCartQuoteLineDto[];
+  unavailableItems: PublicCartQuoteLineInputDto[];
+  subtotalInPaise: number;
+  productDiscountInPaise: number;
+  couponCode?: string;
+  couponDiscountInPaise: number;
+  shippingChargeInPaise: number;
+  taxIncludedInPaise: number;
+  totalInPaise: number;
+  payableInPaise: number;
+  itemCount: number;
+  deliveryEstimate: string;
+  codAvailable: boolean;
+  messages: string[];
+}
+
+export type PublicCheckoutPaymentMethod = 'UPI' | 'Cards' | 'Net banking' | 'COD';
+
+export interface PublicCheckoutAddressDto {
+  fullName: string;
+  mobile: string;
+  email?: string;
+  addressLine1: string;
+  addressLine2?: string;
+  landmark?: string;
+  city: string;
+  state: string;
+  stateCode?: string;
+  pinCode: string;
+}
+
+export interface PublicCheckoutRequestDto {
+  cart: PublicCartQuoteRequestDto;
+  customer: PublicCheckoutAddressDto;
+  billingAddress?: PublicCheckoutAddressDto;
+  paymentMethod: PublicCheckoutPaymentMethod;
+  customerNotes?: string;
+}
+
+export interface PublicCheckoutResponseDto {
+  order: CustomerOrderDto;
+  quote: PublicCartQuoteDto;
+  payment: {
+    method: PublicCheckoutPaymentMethod;
+    status: OrderPaymentStatus;
+    message: string;
+  };
+  tracking: {
+    orderNumber: string;
+    identifier: string;
+    trackUrl: string;
+  };
+}
+
 export interface BusinessSettingsDto {
   displayName: string;
   legalName?: string;
