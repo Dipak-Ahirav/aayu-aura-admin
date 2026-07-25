@@ -21,7 +21,7 @@ const envSchema = z.object({
         'http://127.0.0.1:4300',
         'https://aayu-aura-admin-admin-web.vercel.app',
         'https://aayu-aura-admin-web.vercel.app',
-        'https://www.aayuaura.com',
+        'https://www.aayuandaura.com',
       ].join(','),
     ),
   CORS_ALLOWED_ORIGIN_PATTERNS: z
@@ -56,6 +56,7 @@ const corsAllowedOriginPatterns = env.CORS_ALLOWED_ORIGIN_PATTERNS.split(',')
 const trustedDeploymentOrigins = new Set([
   'https://aayu-aura-admin-admin-web.vercel.app',
   'https://aayu-aura-admin-web.vercel.app',
+  'https://www.aayuandaura.com'
 ]);
 
 export function isCorsOriginAllowed(origin: string | undefined): boolean {
