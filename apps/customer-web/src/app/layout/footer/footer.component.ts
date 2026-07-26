@@ -1,10 +1,15 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+
+interface FooterLink {
+  label: string;
+  path: string;
+}
 
 @Component({
   selector: 'aac-footer',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   template: `
     <footer class="site-footer">
       <div>
@@ -12,15 +17,27 @@ import { RouterLink } from '@angular/router';
         <p>Premium saree shopping with clear prices, customer-safe order flows, and WhatsApp support.</p>
       </div>
       <nav aria-label="Footer navigation">
-        <a routerLink="/about">About</a>
-        <a routerLink="/faq">FAQ</a>
-        <a routerLink="/track-order">Track order</a>
-        <a routerLink="/shipping-policy">Shipping</a>
-        <a routerLink="/return-policy">Returns</a>
-        <a routerLink="/privacy-policy">Privacy</a>
-        <a routerLink="/terms-and-conditions">Terms</a>
+        @for (link of links; track link.path) {
+          <a
+            [routerLink]="link.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            {{ link.label }}
+          </a>
+        }
       </nav>
     </footer>
   `,
 })
-export class FooterComponent {}
+export class FooterComponent {
+  protected readonly links: FooterLink[] = [
+    { label: 'About', path: '/about' },
+    { label: 'FAQ', path: '/faq' },
+    { label: 'Track order', path: '/track-order' },
+    { label: 'Shipping', path: '/shipping-policy' },
+    { label: 'Returns', path: '/return-policy' },
+    { label: 'Privacy', path: '/privacy-policy' },
+    { label: 'Terms', path: '/terms-and-conditions' },
+  ];
+}
