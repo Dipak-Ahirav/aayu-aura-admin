@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import type { PublicOrderTrackingDto } from '@aayu-aura/shared-types';
 import { formatPrice } from '../../shared/utilities/storefront-demo-data';
+import { whatsappUrl } from '../../shared/utilities/whatsapp';
 import { TrackOrderService } from './track-order.service';
 
 @Component({
@@ -173,7 +174,10 @@ export class TrackOrderPageComponent {
   protected readonly loading = signal(false);
   protected readonly error = signal(false);
   protected readonly tracking = signal<PublicOrderTrackingDto | null>(null);
-  protected readonly supportUrl = computed(() => this.tracking()?.support.whatsappUrl ?? 'https://wa.me/');
+  protected readonly supportUrl = computed(() =>
+    this.tracking()?.support.whatsappUrl ??
+    whatsappUrl('Hi Aayu & Aura, I need help with my order.'),
+  );
 
   constructor() {
     const orderNumber = this.route.snapshot.queryParamMap.get('orderNumber') ?? '';
@@ -218,7 +222,7 @@ export class TrackOrderPageComponent {
 
   protected openSupport(topic: string): void {
     const orderNumber = this.tracking()?.order.orderNumber ?? this.form.controls.orderNumber.value;
-    const url = `https://wa.me/?text=${encodeURIComponent(`${topic} help for order ${orderNumber}.`)}`;
+    const url = whatsappUrl(`Hi Aayu & Aura, I need ${topic.toLowerCase()} help for order ${orderNumber}.`);
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 }

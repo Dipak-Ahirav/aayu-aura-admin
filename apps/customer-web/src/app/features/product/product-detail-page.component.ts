@@ -10,6 +10,7 @@ import type {
 import { ProductCardComponent } from '../../shared/ui/product-card.component';
 import { StorefrontProduct } from '../../shared/models/storefront-demo.models';
 import { formatPrice } from '../../shared/utilities/storefront-demo-data';
+import { whatsappUrl } from '../../shared/utilities/whatsapp';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
 import { CartStore } from '../../state/cart/cart.store';
 import { ProductDetailService } from './product-detail.service';
@@ -179,7 +180,7 @@ export class ProductDetailPageComponent {
   }
 
   protected whatsappLink(product: PublicProductDetailDto): string {
-    return `https://wa.me/?text=${encodeURIComponent(`I want to enquire about ${product.name}`)}`;
+    return whatsappUrl(`Hi Aayu & Aura, I want to enquire about ${product.name}.`);
   }
 
   protected relatedProducts(product: PublicProductDetailDto): StorefrontProduct[] {

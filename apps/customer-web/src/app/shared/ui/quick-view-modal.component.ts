@@ -4,6 +4,7 @@ import { QuickViewStore } from '../../state/quick-view/quick-view.store';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
 import { CartStore } from '../../state/cart/cart.store';
 import { formatPrice } from '../utilities/storefront-demo-data';
+import { whatsappUrl } from '../utilities/whatsapp';
 
 @Component({
   selector: 'aac-quick-view-modal',
@@ -56,7 +57,7 @@ import { formatPrice } from '../utilities/storefront-demo-data';
               <button class="button secondary" type="button" (click)="wishlist.toggle(product)">
                 {{ wishlist.isSaved(product.slug) ? 'Remove wishlist' : 'Add wishlist' }}
               </button>
-              <a class="button whatsapp" href="https://wa.me/" target="_blank" rel="noreferrer">WhatsApp enquiry</a>
+              <a class="button whatsapp" [href]="whatsappLink(product.name)" target="_blank" rel="noreferrer">WhatsApp enquiry</a>
               <a class="button secondary" [routerLink]="['/saree', product.slug]" (click)="quickView.close()">View full details</a>
             </div>
           </div>
@@ -83,5 +84,9 @@ export class QuickViewModalComponent {
     };
 
     return images[tone] ?? images['wine'];
+  }
+
+  protected whatsappLink(productName: string): string {
+    return whatsappUrl(`Hi Aayu & Aura, I want to enquire about ${productName}.`);
   }
 }

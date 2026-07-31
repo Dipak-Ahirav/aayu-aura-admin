@@ -2,6 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import { whatsappUrl } from '../../shared/utilities/whatsapp';
 
 interface ContentBlock {
   heading: string;
@@ -261,7 +262,7 @@ const fallbackPage: ContentPage = {
             <h2>Need product or order help?</h2>
             <p>Use WhatsApp support for saree enquiries, delivery questions, return help, and order status.</p>
           </div>
-          <a class="button secondary whatsapp" href="https://wa.me/" target="_blank" rel="noopener">
+          <a class="button secondary whatsapp" [href]="whatsappSupportLink" target="_blank" rel="noopener">
             WhatsApp support
           </a>
         </aside>
@@ -271,6 +272,9 @@ const fallbackPage: ContentPage = {
 })
 export class ContentPageComponent {
   private readonly route = inject(ActivatedRoute);
+  protected readonly whatsappSupportLink = whatsappUrl(
+    'Hi Aayu & Aura, I need help with saree shopping or my order.',
+  );
 
   protected readonly page$ = this.route.paramMap.pipe(
     map((params) => contentPages[params.get('slug') ?? ''] ?? fallbackPage),

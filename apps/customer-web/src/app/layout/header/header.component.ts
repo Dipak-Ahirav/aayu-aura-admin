@@ -4,6 +4,7 @@ import { CartStore } from '../../state/cart/cart.store';
 import { StorefrontStore } from '../../state/storefront/storefront.store';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
 import { CustomerSessionStore } from '../../state/session/customer-session.store';
+import { whatsappUrl } from '../../shared/utilities/whatsapp';
 
 @Component({
   selector: 'aac-header',
@@ -25,7 +26,7 @@ import { CustomerSessionStore } from '../../state/session/customer-session.store
       </nav>
 
       <div class="header-actions">
-        <a class="whatsapp-link" href="https://wa.me/" target="_blank" rel="noreferrer">WhatsApp</a>
+        <a class="whatsapp-link" [href]="whatsappSupportLink" target="_blank" rel="noreferrer">WhatsApp</a>
         <a routerLink="/wishlist" aria-label="Wishlist">Wishlist {{ wishlist.count() }}</a>
         <a class="cart-pill" routerLink="/cart" aria-label="Cart">Cart {{ cart.itemCount() }}</a>
         <a routerLink="/account" aria-label="Account">{{ session.currentCustomer()?.name || 'Account' }}</a>
@@ -38,4 +39,5 @@ export class HeaderComponent {
   protected readonly session = inject(CustomerSessionStore);
   protected readonly storefront = inject(StorefrontStore);
   protected readonly wishlist = inject(WishlistStore);
+  protected readonly whatsappSupportLink = whatsappUrl('Hi Aayu & Aura, I need help with saree shopping.');
 }

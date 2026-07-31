@@ -13,6 +13,7 @@ import { ShipmentModel } from '../shipping/shipment.model.js';
 import type { PublicOrderTrackingInput } from './storefront-tracking.schemas.js';
 
 const invoiceService = new InvoiceService();
+const businessWhatsAppNumber = '917972109874';
 
 const fulfilmentOrder: OrderFulfilmentStatus[] = [
   'Pending',
@@ -231,7 +232,7 @@ export async function getPublicOrderTracking(
       closedAt: row.closedAt?.toISOString(),
     })),
     support: {
-      whatsappUrl: `https://wa.me/?text=${encodeURIComponent(
+      whatsappUrl: `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(
         `I need help with order ${order.orderNumber}.`,
       )}`,
       message: 'Share this order number on WhatsApp for cancellation, return, exchange, or refund help.',
