@@ -14,12 +14,51 @@ const addressSchema = z.object({
   pinCode: z.string().trim().min(4).max(12),
 });
 
-export const publicCheckoutSchema = z.object({
-  cart: publicCartQuoteSchema,
-  customer: addressSchema,
-  billingAddress: addressSchema.optional(),
-  paymentMethod: z.enum(['UPI', 'Cards', 'Net banking', 'COD']),
-  customerNotes: z.string().trim().max(500).optional().or(z.literal('')),
-});
+const paymentMethodSchema = z.enum(['UPI', 'Cards', 'Net banking', 'COD']);
+
+const paymentDetailsSchema = z.discriminatedUnion('method', [
+  z.object({
+    method: z.literal('UPI'),
+    upiId: z.string().trim().min(5).max(80),
+    transactionReference: z.string().trim().min(6).max(80).optional(),
+  }),
+  z.object({
+    method: z.literal('Cards'),
+    cardholderName: z.string().trim().min(2).max(120),
+    cardLast4: z.string().trim().regex(/^\d{4}$/),
+    expiryMonth: z.string().trim().regex(/^(0[1-9]|1[0-2])$/),
+    expiryYear: z.string().trim().regex(/^(\d{2}|\d{4})$/),
+    transactionReference: z.string().trim().min(6).max(80).optional(),
+  }),
+  z.object({
+    method: z.literal('Net banking'),
+    bankName: z.string().trim().min(2).max(120),
+    accountHolderName: z.string().trim().min(2).max(120),
+    transactionReference: z.string().trim().min(6).max(80).optional(),
+  }),
+  z.object({
+    method: z.literal('COD'),
+  }),
+]);
+
+export const publicCheckoutSchema = z
+  .object({
+    cart: publicCartQuoteSchema,
+    customer: addressSchema,
+    billingAddress: addressSchema.optional(),
+    paymentMethod: paymentMethodSchema,
+    paymentDetails: paymentDetailsSchema.optional(),
+    customerNotes: z.string().trim().max(500).optional().or(z.literal('')),
+  })
+  .superRefine((value, ctx) => {
+    if (value.paymentMethod === 'COD') return;
+    if (!value.paymentDetails || value.paymentDetails.method !== value.paymentMethod) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Provide valid ${value.paymentMethod} payment details.`,
+        path: ['paymentDetails'],
+      });
+    }
+  });
 
 export type PublicCheckoutInput = z.infer<typeof publicCheckoutSchema>;

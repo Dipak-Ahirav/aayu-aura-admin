@@ -21,6 +21,7 @@ function toDto(product: ProductDocument & { _id: Types.ObjectId }): AdminProduct
     sku: product.sku,
     category: product.category,
     status: product.status,
+    showInStorefront: product.showInStorefront !== false,
     purchasePriceInPaise: product.purchasePriceInPaise,
     landedCostInPaise: product.landedCostInPaise,
     sellingPriceInPaise: product.sellingPriceInPaise,
@@ -42,6 +43,7 @@ function createPayload(input: CreateProductInput, userId?: string) {
     sku: normalizeSku(input.sku),
     category: cleanEmpty(input.category),
     status: input.status,
+    showInStorefront: input.showInStorefront ?? true,
     purchasePriceInPaise: input.purchasePriceInPaise,
     landedCostInPaise: input.landedCostInPaise,
     sellingPriceInPaise: input.sellingPriceInPaise,
@@ -62,6 +64,7 @@ function updatePayload(input: UpdateProductInput) {
   if (input.sku !== undefined) payload.sku = normalizeSku(input.sku);
   if (input.category !== undefined) payload.category = cleanEmpty(input.category);
   if (input.status !== undefined) payload.status = input.status;
+  if (input.showInStorefront !== undefined) payload.showInStorefront = input.showInStorefront;
   if (input.purchasePriceInPaise !== undefined)
     payload.purchasePriceInPaise = input.purchasePriceInPaise;
   if (input.landedCostInPaise !== undefined) payload.landedCostInPaise = input.landedCostInPaise;

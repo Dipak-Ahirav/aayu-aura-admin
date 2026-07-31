@@ -16,6 +16,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
             <span>Order number</span>
             <strong>{{ number }}</strong>
           </div>
+          @if (paymentMessage()) {
+            <div class="order-result-number">
+              <span>{{ paymentMethod() }} payment status</span>
+              <strong>{{ paymentStatus() }}</strong>
+              <p>{{ paymentMessage() }}</p>
+            </div>
+          }
           <div class="action-grid">
             <a class="button primary" [routerLink]="['/track-order']" [queryParams]="trackingParams()">Track order</a>
             <a class="button secondary" routerLink="/shop">Continue shopping</a>
@@ -48,5 +55,17 @@ export class OrderResultPageComponent {
       orderNumber: this.orderNumber(),
       identifier: this.route.snapshot.queryParamMap.get('identifier') ?? '',
     };
+  }
+
+  protected paymentMethod(): string {
+    return this.route.snapshot.queryParamMap.get('paymentMethod') ?? 'Order';
+  }
+
+  protected paymentStatus(): string {
+    return this.route.snapshot.queryParamMap.get('paymentStatus') ?? '';
+  }
+
+  protected paymentMessage(): string {
+    return this.route.snapshot.queryParamMap.get('paymentMessage') ?? '';
   }
 }

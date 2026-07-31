@@ -151,8 +151,9 @@ export interface AdminProductDto {
   name: string;
   sku: string;
   category?: string;
-  status: 'draft' | 'active' | 'archived';
-  purchasePriceInPaise: number;
+    status: 'draft' | 'active' | 'archived';
+    showInStorefront: boolean;
+    purchasePriceInPaise: number;
   landedCostInPaise: number;
   sellingPriceInPaise: number;
   currentPhysicalStock: number;
@@ -171,9 +172,10 @@ export type ProductStatus = AdminProductDto['status'];
 export interface CreateProductDto {
   name: string;
   sku: string;
-  category?: string;
-  status?: ProductStatus;
-  purchasePriceInPaise: number;
+    category?: string;
+    status?: ProductStatus;
+    showInStorefront?: boolean;
+    purchasePriceInPaise: number;
   landedCostInPaise: number;
   sellingPriceInPaise: number;
   currentPhysicalStock: number;
@@ -664,6 +666,30 @@ export interface PublicCartQuoteDto {
 
 export type PublicCheckoutPaymentMethod = 'UPI' | 'Cards' | 'Net banking' | 'COD';
 
+export type PublicCheckoutPaymentDetailsDto =
+  | {
+      method: 'UPI';
+      upiId: string;
+      transactionReference?: string;
+    }
+  | {
+      method: 'Cards';
+      cardholderName: string;
+      cardLast4: string;
+      expiryMonth: string;
+      expiryYear: string;
+      transactionReference?: string;
+    }
+  | {
+      method: 'Net banking';
+      bankName: string;
+      accountHolderName: string;
+      transactionReference?: string;
+    }
+  | {
+      method: 'COD';
+    };
+
 export interface PublicCheckoutAddressDto {
   fullName: string;
   mobile: string;
@@ -682,23 +708,51 @@ export interface PublicCheckoutRequestDto {
   customer: PublicCheckoutAddressDto;
   billingAddress?: PublicCheckoutAddressDto;
   paymentMethod: PublicCheckoutPaymentMethod;
+  paymentDetails?: PublicCheckoutPaymentDetailsDto;
   customerNotes?: string;
 }
 
-export interface PublicCheckoutResponseDto {
-  order: CustomerOrderDto;
-  quote: PublicCartQuoteDto;
-  payment: {
-    method: PublicCheckoutPaymentMethod;
-    status: OrderPaymentStatus;
-    message: string;
-  };
-  tracking: {
+  export interface PublicCheckoutResponseDto {
+    order: CustomerOrderDto;
+    quote: PublicCartQuoteDto;
+    payment: {
+      method: PublicCheckoutPaymentMethod;
+      status: OrderPaymentStatus;
+      message: string;
+      gateway?: {
+        provider: 'razorpay';
+        keyId: string;
+        orderId: string;
+        amountInPaise: number;
+        currency: 'INR';
+        name: string;
+        description: string;
+        prefill: {
+          name: string;
+          email?: string;
+          contact: string;
+        };
+      };
+    };
+    tracking: {
+      orderNumber: string;
+      identifier: string;
+      trackUrl: string;
+    };
+  }
+
+  export interface PublicVerifyRazorpayPaymentRequestDto {
+    razorpayOrderId: string;
+    razorpayPaymentId: string;
+    razorpaySignature: string;
+  }
+
+  export interface PublicVerifyRazorpayPaymentResponseDto {
     orderNumber: string;
     identifier: string;
-    trackUrl: string;
-  };
-}
+    paymentStatus: OrderPaymentStatus;
+    message: string;
+  }
 
 export interface BusinessSettingsDto {
   displayName: string;

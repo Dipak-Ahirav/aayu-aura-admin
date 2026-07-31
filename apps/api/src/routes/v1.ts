@@ -63,6 +63,10 @@ import {
   updateMasterData,
 } from '../domain/master-data/master-data.controller.js';
 import { createOrder, getOrder, listOrders } from '../domain/orders/order.controller.js';
+import {
+  razorpayWebhook,
+  verifyPublicRazorpayPayment,
+} from '../domain/payment-gateway/payment-gateway.controller.js';
 import { createPayment, listPayments } from '../domain/payments/payment.controller.js';
 import {
   createProduct,
@@ -152,6 +156,8 @@ v1Router.get('/ready', (_req, res) => {
 v1Router.get('/public/home', storefrontHome);
 v1Router.post('/public/cart/quote', storefrontCartQuote);
 v1Router.post('/public/checkout', storefrontCheckout);
+v1Router.post('/public/payments/razorpay/verify', verifyPublicRazorpayPayment);
+v1Router.post('/public/payments/razorpay/webhook', razorpayWebhook);
 v1Router.post('/public/customer-auth/register', customerRegister);
 v1Router.post('/public/customer-auth/login', customerLogin);
 v1Router.post('/public/customer-auth/oauth', customerOAuth);

@@ -128,6 +128,18 @@ type StatusFilter = 'All' | ProductStatus;
                 </mat-select>
               </mat-form-field>
 
+              <label class="storefront-toggle">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="form.showInStorefront"
+                  name="showInStorefront"
+                />
+                <span>
+                  Show in customer app
+                  <small>Visible on homepage, shop, search, categories, and collections</small>
+                </span>
+              </label>
+
               <mat-form-field appearance="outline">
                 <mat-label>Purchase price</mat-label>
                 <input matInput type="number" [(ngModel)]="purchasePrice" name="purchasePrice" />
@@ -243,6 +255,7 @@ type StatusFilter = 'All' | ProductStatus;
                         <th>Available</th>
                         <th>Reserved</th>
                         <th>Status</th>
+                        <th>Storefront</th>
                         <th>Updated</th>
                       </tr>
                     </thead>
@@ -274,6 +287,11 @@ type StatusFilter = 'All' | ProductStatus;
                           <td>
                             <span class="status">{{ product.status }}</span>
                           </td>
+                          <td>
+                            <span class="status" [class.hidden-store]="!product.showInStorefront">
+                              {{ product.showInStorefront ? 'Visible' : 'Hidden' }}
+                            </span>
+                          </td>
                           <td>{{ product.createdAt | date: 'mediumDate' }}</td>
                         </tr>
                       }
@@ -298,6 +316,10 @@ type StatusFilter = 'All' | ProductStatus;
                     <div>
                       <dt>Status</dt>
                       <dd>{{ product.status }}</dd>
+                    </div>
+                    <div>
+                      <dt>Customer app</dt>
+                      <dd>{{ product.showInStorefront ? 'Visible' : 'Hidden' }}</dd>
                     </div>
                     <div>
                       <dt>Physical stock</dt>
@@ -444,6 +466,32 @@ type StatusFilter = 'All' | ProductStatus;
       .form-grid .wide {
         grid-column: span 2;
       }
+      .storefront-toggle {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        min-height: 56px;
+        padding: 11px 14px;
+        border: 1px solid var(--aa-border);
+        border-radius: 8px;
+        background: rgba(255, 253, 249, 0.78);
+        color: var(--aa-ink);
+        font-weight: 700;
+      }
+      .storefront-toggle input {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        accent-color: var(--aa-maroon);
+      }
+      .storefront-toggle small {
+        display: block;
+        margin-top: 3px;
+        color: var(--aa-muted);
+        font-size: 0.78rem;
+        font-weight: 500;
+        line-height: 1.35;
+      }
       .form-actions,
       .detail-actions {
         display: flex;
@@ -524,6 +572,10 @@ type StatusFilter = 'All' | ProductStatus;
         background: rgba(123, 31, 53, 0.08);
         color: var(--aa-maroon);
         font-weight: 700;
+      }
+      .status.hidden-store {
+        background: rgba(102, 91, 100, 0.12);
+        color: var(--aa-muted);
       }
       .low {
         color: #a12424;
@@ -637,6 +689,7 @@ export class ProductsPageComponent {
     sku: '',
     category: '',
     status: 'active',
+    showInStorefront: true,
     currentPhysicalStock: 0,
     reservedStock: 0,
     reorderLevel: 5,
@@ -720,6 +773,7 @@ export class ProductsPageComponent {
       sku: product.sku,
       category: product.category ?? '',
       status: product.status,
+      showInStorefront: product.showInStorefront,
       currentPhysicalStock: product.currentPhysicalStock,
       reservedStock: product.reservedStock,
       reorderLevel: product.reorderLevel ?? 5,
@@ -757,6 +811,7 @@ export class ProductsPageComponent {
       sku: '',
       category: '',
       status: 'active',
+      showInStorefront: true,
       currentPhysicalStock: 0,
       reservedStock: 0,
       reorderLevel: 5,

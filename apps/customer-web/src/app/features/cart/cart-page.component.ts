@@ -16,11 +16,18 @@ import { CartQuoteService } from './cart-quote.service';
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   template: `
-    <section class="checkout-layout">
+    <section class="checkout-layout cart-layout">
       <div class="cart-panel">
-        <p class="eyebrow">Cart</p>
-        <h1>Your cart</h1>
-        <p class="cart-intro">Live pricing, stock, delivery, and discounts are checked against the backend before checkout.</p>
+        <header class="cart-page-header">
+          <div>
+            <p class="eyebrow">Cart</p>
+            <h1>Your cart</h1>
+            <p class="cart-intro">Live pricing, stock, delivery, and discounts are checked against the backend before checkout.</p>
+          </div>
+          @if (cart.items().length > 0) {
+            <span class="cart-count-chip">{{ cart.items().length }} item(s)</span>
+          }
+        </header>
 
         @if (cart.items().length === 0) {
           <div class="empty-state cart-empty-state">
@@ -63,16 +70,18 @@ import { CartQuoteService } from './cart-quote.service';
                     <button type="button" (click)="cart.remove(line.productSlug)">Remove</button>
                   </div>
                 </div>
-                <div class="quantity-stepper" aria-label="Quantity">
-                  <button type="button" (click)="decrease(line)">-</button>
-                  <span>{{ line.quantity }}</span>
-                  <button type="button" [disabled]="line.quantity >= line.availableStock" (click)="increase(line)">+</button>
-                </div>
-                <div class="cart-line-price">
-                  <strong>{{ price(line.lineTotalInPaise) }}</strong>
-                  @if (line.lineDiscountInPaise > 0) {
-                    <span>You save {{ price(line.lineDiscountInPaise) }}</span>
-                  }
+                <div class="cart-line-control">
+                  <div class="quantity-stepper" aria-label="Quantity">
+                    <button type="button" aria-label="Decrease quantity" (click)="decrease(line)">-</button>
+                    <span>{{ line.quantity }}</span>
+                    <button type="button" aria-label="Increase quantity" [disabled]="line.quantity >= line.availableStock" (click)="increase(line)">+</button>
+                  </div>
+                  <div class="cart-line-price">
+                    <strong>{{ price(line.lineTotalInPaise) }}</strong>
+                    @if (line.lineDiscountInPaise > 0) {
+                      <span>You save {{ price(line.lineDiscountInPaise) }}</span>
+                    }
+                  </div>
                 </div>
               </article>
             }
@@ -93,14 +102,16 @@ import { CartQuoteService } from './cart-quote.service';
                       <button type="button" (click)="cart.remove(line.productSlug)">Remove</button>
                     </div>
                   </div>
-                  <div class="quantity-stepper" aria-label="Quantity">
-                    <button type="button" (click)="decreaseLocal(line)">-</button>
-                    <span>{{ line.quantity }}</span>
-                    <button type="button" (click)="increaseLocal(line)">+</button>
-                  </div>
-                  <div class="cart-line-price">
-                    <strong>{{ price(localLineTotal(line)) }}</strong>
-                    <span>Local cart price</span>
+                  <div class="cart-line-control">
+                    <div class="quantity-stepper" aria-label="Quantity">
+                      <button type="button" aria-label="Decrease quantity" (click)="decreaseLocal(line)">-</button>
+                      <span>{{ line.quantity }}</span>
+                      <button type="button" aria-label="Increase quantity" (click)="increaseLocal(line)">+</button>
+                    </div>
+                    <div class="cart-line-price">
+                      <strong>{{ price(localLineTotal(line)) }}</strong>
+                      <span>Local cart price</span>
+                    </div>
                   </div>
                 </article>
               }
@@ -132,14 +143,16 @@ import { CartQuoteService } from './cart-quote.service';
                       <button type="button" (click)="quoteCart()">Refresh quote</button>
                     </div>
                   </div>
-                  <div class="quantity-stepper" aria-label="Quantity">
-                    <button type="button" (click)="decreaseLocal(line)">-</button>
-                    <span>{{ line.quantity }}</span>
-                    <button type="button" (click)="increaseLocal(line)">+</button>
-                  </div>
-                  <div class="cart-line-price">
-                    <strong>{{ price(localLineTotal(line)) }}</strong>
-                    <span>Local cart price</span>
+                  <div class="cart-line-control">
+                    <div class="quantity-stepper" aria-label="Quantity">
+                      <button type="button" aria-label="Decrease quantity" (click)="decreaseLocal(line)">-</button>
+                      <span>{{ line.quantity }}</span>
+                      <button type="button" aria-label="Increase quantity" (click)="increaseLocal(line)">+</button>
+                    </div>
+                    <div class="cart-line-price">
+                      <strong>{{ price(localLineTotal(line)) }}</strong>
+                      <span>Local cart price</span>
+                    </div>
                   </div>
                 </article>
               }
@@ -182,15 +195,19 @@ import { CartQuoteService } from './cart-quote.service';
           <span>Delivery PIN code</span>
           <input [formControl]="pinCode" inputmode="numeric" placeholder="400001">
         </label>
-        <button type="button" (click)="quoteCart()">Apply / refresh</button>
+        <div class="summary-actions">
+          <button type="button" (click)="quoteCart()">Apply / refresh</button>
+          @if (session.isAuthenticated()) {
+            <a class="button primary" [class.is-disabled]="!canCheckout()" routerLink="/checkout">Checkout</a>
+          } @else {
+            <a class="button primary" [class.is-disabled]="!canCheckout()" routerLink="/checkout">Guest checkout</a>
+            <a class="button secondary" routerLink="/login" [queryParams]="{ returnUrl: '/checkout' }">Login and checkout</a>
+          }
+          <button type="button" [disabled]="cart.items().length === 0" (click)="cart.clear()">Clear cart</button>
+        </div>
         @if (session.isAuthenticated()) {
-          <a class="button primary" [class.is-disabled]="!canCheckout()" routerLink="/checkout">Checkout</a>
-          <p class="auth-note">Checking out as {{ session.currentCustomer()?.name }}.</p>
-        } @else {
-          <a class="button primary" [class.is-disabled]="!canCheckout()" routerLink="/checkout">Guest checkout</a>
-          <a class="button secondary" routerLink="/login" [queryParams]="{ returnUrl: '/checkout' }">Login and checkout</a>
+          <p class="auth-note checkout-user-note">Checking out as {{ session.currentCustomer()?.name }}.</p>
         }
-        <button type="button" [disabled]="cart.items().length === 0" (click)="cart.clear()">Clear cart</button>
       </aside>
     </section>
   `,

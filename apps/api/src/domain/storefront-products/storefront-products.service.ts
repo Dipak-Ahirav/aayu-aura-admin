@@ -385,15 +385,11 @@ function buildFilters(items: PublicProductCardDto[]): PublicProductFilterGroupDt
 }
 
 async function loadProducts(): Promise<PublicProductCardDto[]> {
-  const products = await ProductModel.find({ status: { $ne: 'archived' } })
+  const products = await ProductModel.find({ status: 'active', showInStorefront: { $ne: false } })
     .sort({ createdAt: -1 })
     .limit(240)
     .lean()
     .catch(() => []);
-
-  if (!products.length) {
-    return fallbackProducts.map((_, index) => fallbackCard(index));
-  }
 
   return products.map((product, index) =>
     enrich(

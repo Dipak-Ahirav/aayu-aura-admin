@@ -6,6 +6,7 @@ export interface ProductDocument {
   sku: string;
   category?: string;
   status: ProductStatus;
+  showInStorefront: boolean;
   purchasePriceInPaise: number;
   landedCostInPaise: number;
   sellingPriceInPaise: number;
@@ -33,6 +34,7 @@ const productSchema = new Schema<ProductDocument>(
       default: 'active',
       index: true,
     },
+    showInStorefront: { type: Boolean, required: true, default: true, index: true },
     purchasePriceInPaise: { type: Number, required: true, min: 0 },
     landedCostInPaise: { type: Number, required: true, min: 0 },
     sellingPriceInPaise: { type: Number, required: true, min: 0 },

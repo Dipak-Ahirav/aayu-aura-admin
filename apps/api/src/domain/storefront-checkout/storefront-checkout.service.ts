@@ -3,8 +3,13 @@ import type {
   CustomerOrderAddressSnapshotDto,
   PublicCheckoutResponseDto,
 } from '@aayu-aura/shared-types';
+import { isValidObjectId } from 'mongoose';
 import { AppError } from '../../infrastructure/http/app-error.js';
 import { OrderService } from '../orders/order.service.js';
+import {
+  assertRazorpayConfigured,
+  createCheckoutGateway,
+} from '../payment-gateway/payment-gateway.service.js';
 import { ProductModel } from '../products/product.model.js';
 import { quotePublicCart } from '../storefront-cart/storefront-cart.service.js';
 import type { PublicCheckoutInput } from './storefront-checkout.schemas.js';
@@ -56,7 +61,20 @@ function distributeDiscount(totalDiscount: number, lineTotals: number[]): number
 
 function paymentMessage(method: PublicCheckoutInput['paymentMethod']): string {
   if (method === 'COD') return 'COD selected. Pay the payable amount during delivery where serviceable.';
-  return `${method} selected. Payment gateway capture is pending, so this order is saved as unpaid.`;
+  if (method === 'UPI') {
+    return 'Complete the Razorpay UPI payment request. The order is marked paid only after payment verification.';
+  }
+  return `Complete ${method} payment through Razorpay. The order is marked paid only after payment verification.`;
+}
+
+function paymentNotes(input: PublicCheckoutInput): string {
+  const details = input.paymentDetails;
+  if (!details || details.method === 'COD') return 'Customer website COD order.';
+  if (details.method === 'UPI') return `Customer website UPI payment from ${details.upiId}.`;
+  if (details.method === 'Cards') {
+    return `Customer website card payment by ${details.cardholderName}, card ending ${details.cardLast4}.`;
+  }
+  return `Customer website net banking payment from ${details.bankName}, account holder ${details.accountHolderName}.`;
 }
 
 export async function createPublicCheckoutOrder(
@@ -81,6 +99,10 @@ export async function createPublicCheckoutOrder(
 
   if (input.paymentMethod === 'COD' && !quote.codAvailable) {
     throw new AppError(400, 'COD_NOT_AVAILABLE', 'COD is not available for this cart.');
+  }
+
+  if (input.paymentMethod !== 'COD') {
+    assertRazorpayConfigured();
   }
 
   const lineTotals = quote.items.map((item) => item.lineTotalInPaise);
@@ -110,19 +132,24 @@ export async function createPublicCheckoutOrder(
     advancePaidInPaise: 0,
     notes: [
       `Payment method: ${input.paymentMethod}`,
+      input.paymentMethod !== 'COD' ? paymentNotes(input) : undefined,
       quote.couponCode ? `Coupon: ${quote.couponCode}` : undefined,
       clean(input.customerNotes),
     ].filter(Boolean).join(' | '),
   });
 
-  await ProductModel.bulkWrite(
-    quote.items.map((item) => ({
+  const stockReservations = quote.items
+    .filter((item) => isValidObjectId(item.productId))
+    .map((item) => ({
       updateOne: {
         filter: { _id: item.productId },
         update: { $inc: { reservedStock: item.quantity } },
       },
-    })),
-  );
+    }));
+
+  if (stockReservations.length > 0) {
+    await ProductModel.bulkWrite(stockReservations);
+  }
 
   const shippingAddress = addressSnapshot(input.customer);
   const customerOrder: CustomerOrderDto = {
@@ -156,6 +183,14 @@ export async function createPublicCheckoutOrder(
     returnAllowed: false,
   };
 
+  const gateway = input.paymentMethod === 'COD'
+    ? undefined
+    : await createCheckoutGateway({
+        order: customerOrder,
+        paymentMethod: input.paymentMethod,
+        customerUpiId: input.paymentDetails?.method === 'UPI' ? input.paymentDetails.upiId : undefined,
+      });
+
   return {
     order: customerOrder,
     quote,
@@ -163,6 +198,7 @@ export async function createPublicCheckoutOrder(
       method: input.paymentMethod,
       status: order.paymentStatus,
       message: paymentMessage(input.paymentMethod),
+      gateway,
     },
     tracking: {
       orderNumber: order.orderNumber,

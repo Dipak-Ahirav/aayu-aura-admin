@@ -5,8 +5,8 @@
   "description": "Aayu & Aura saree business admin portal monorepo.",
   "type": "module",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "engines": {
     "node": ">=20.19.0 <21"

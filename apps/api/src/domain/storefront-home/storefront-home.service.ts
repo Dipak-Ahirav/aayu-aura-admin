@@ -148,14 +148,13 @@ function shortcut(label: string, description: string, link: string) {
 }
 
 export async function getStorefrontHome(): Promise<PublicHomepageDto> {
-  const products = await ProductModel.find({ status: { $ne: 'archived' } })
+  const products = await ProductModel.find({ status: 'active', showInStorefront: { $ne: false } })
     .sort({ createdAt: -1 })
     .limit(12)
     .catch(() => []);
-  const homepageProducts =
-    products.length > 0
-      ? products.map((product, index) => toHomepageProduct(product as ProductWithId, index))
-      : demoProducts;
+  const homepageProducts = products.map((product, index) =>
+    toHomepageProduct(product as ProductWithId, index),
+  );
   const categories = [
     ...new Set(homepageProducts.map((product) => product.category).filter(Boolean)),
   ].slice(0, 6) as string[];

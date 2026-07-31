@@ -8,6 +8,7 @@ export const createProductSchema = z.object({
   sku: z.string().trim().min(2),
   category: z.string().trim().optional().or(z.literal('')),
   status: z.enum(['draft', 'active', 'archived']).default('active'),
+  showInStorefront: z.coerce.boolean().default(true),
   purchasePriceInPaise: paise,
   landedCostInPaise: paise,
   sellingPriceInPaise: paise,

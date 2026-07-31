@@ -40,6 +40,9 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
   COOKIE_SECRET: z.string().min(32).default('development-cookie-secret-change-before-prod'),
   LOG_LEVEL: z.string().default('info'),
+  RAZORPAY_KEY_ID: z.string().trim().default(''),
+  RAZORPAY_KEY_SECRET: z.string().trim().default(''),
+  RAZORPAY_WEBHOOK_SECRET: z.string().trim().default(''),
 });
 
 export const env = envSchema.parse(process.env);
