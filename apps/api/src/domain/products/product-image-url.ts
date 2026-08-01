@@ -10,5 +10,5 @@ export function publicProductImageUrl(url: string | undefined): string | undefin
   if (!url) return undefined;
   const match = url.match(uploadPathPattern);
   if (!match) return url;
-  return new URL(match[0], env.APP_URL).toString();
+  return new URL(match[0], env.UPLOAD_PUBLIC_URL).toString();
 }
