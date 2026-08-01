@@ -131,19 +131,31 @@ function enrich(
     reservedStock: number;
     status: ProductDocument['status'];
     coverImageUrl?: string;
+    mrpInPaise?: number;
+    offerPriceInPaise?: number;
+    sareeType?: string;
+    fabric?: string;
+    primaryColour?: string;
+    colours?: string[];
+    pattern?: string;
+    occasion?: string;
+    isNewArrival?: boolean;
+    isBestSeller?: boolean;
+    averageRating?: number;
+    reviewCount?: number;
+    images?: ProductDocument['images'];
   },
   index: number,
 ): PublicProductCardDto {
   const attrs = demoAttributes[index % demoAttributes.length] ?? demoAttributes[0];
   const sellingPriceInPaise = Number.isFinite(base.sellingPriceInPaise) ? base.sellingPriceInPaise : 0;
-  const mrpInPaise = Math.max(
-    Math.round(sellingPriceInPaise * (1.16 + (index % 3) * 0.04)),
-    sellingPriceInPaise,
-  );
+  const mrpInPaise = base.mrpInPaise;
+  const displayPriceInPaise = base.offerPriceInPaise ?? sellingPriceInPaise;
   const discountPercentage =
-    mrpInPaise > sellingPriceInPaise
-      ? Math.round(((mrpInPaise - sellingPriceInPaise) / mrpInPaise) * 100)
+    mrpInPaise && mrpInPaise > displayPriceInPaise
+      ? Math.round(((mrpInPaise - displayPriceInPaise) / mrpInPaise) * 100)
       : 0;
+  const image = base.images?.[0] ?? (base.coverImageUrl ? { url: base.coverImageUrl } : undefined);
 
   return {
     id: base.id,
@@ -151,23 +163,24 @@ function enrich(
     name: base.name,
     productCode: base.sku,
     category: base.category || attrs.category,
-    sareeType: base.category || attrs.sareeType,
-    fabric: attrs.fabric,
-    primaryColour: attrs.primaryColour,
-    colours: attrs.colours,
-    pattern: attrs.pattern,
-    occasion: attrs.occasion,
+    sareeType: base.sareeType || attrs.sareeType,
+    fabric: base.fabric || attrs.fabric,
+    primaryColour: base.primaryColour || attrs.primaryColour,
+    colours: base.colours?.length ? base.colours : attrs.colours,
+    pattern: base.pattern || attrs.pattern,
+    occasion: base.occasion || attrs.occasion,
     imageTone: attrs.imageTone,
-    coverImage: base.coverImageUrl ? { url: base.coverImageUrl, altText: base.name } : undefined,
+    coverImage: image ? { url: image.url, altText: image.altText || base.name } : undefined,
     sellingPriceInPaise,
     mrpInPaise,
+    offerPriceInPaise: base.offerPriceInPaise,
     discountPercentage,
     availability: availability(base),
-    isNewArrival: index < 8,
-    isBestSeller: index % 3 === 0,
+    isNewArrival: base.isNewArrival ?? index < 8,
+    isBestSeller: base.isBestSeller ?? index % 3 === 0,
     variantCount: 1 + (index % 4),
-    averageRating: Number((4.4 + (index % 6) / 10).toFixed(1)),
-    reviewCount: 18 + index * 11,
+    averageRating: base.averageRating ?? Number((4.4 + (index % 6) / 10).toFixed(1)),
+    reviewCount: base.reviewCount ?? 18 + index * 11,
   };
 }
 
@@ -190,35 +203,50 @@ function fallbackCard(index: number): PublicProductCardDto {
 function cardToDetail(
   product: PublicProductCardDto,
   relatedProducts: PublicProductCardDto[],
+  rawProduct?: ProductWithId | null,
 ): import('@aayu-aura/shared-types').PublicProductDetailDto {
   const image = product.coverImage ?? {
     url: `/images/home/${product.imageTone ?? 'wine'}-saree-model.png`,
     altText: product.name,
   };
+  const images = rawProduct?.images?.length
+    ? rawProduct.images.map((item, index) => ({
+        url: item.url,
+        altText: item.altText || product.name,
+        sortOrder: item.sortOrder ?? index + 1,
+      }))
+    : [
+        image,
+        { ...image, altText: `${product.name} border detail`, sortOrder: 2 },
+        { ...image, altText: `${product.name} fabric close-up`, sortOrder: 3 },
+      ];
 
   return {
     ...product,
     category: product.category,
-    collection: product.occasion ? `${product.occasion} edit` : 'Aayu & Aura collection',
+    collection:
+      rawProduct?.collection || (product.occasion ? `${product.occasion} edit` : 'Aayu & Aura collection'),
     colours: product.colours ?? ['#7a1f32', '#b98b2d', '#fffaf1'],
     pattern: product.pattern,
-    work: product.pattern?.toLowerCase().includes('zari') ? 'Zari work' : 'Premium woven finish',
+    work:
+      rawProduct?.work ||
+      (product.pattern?.toLowerCase().includes('zari') ? 'Zari work' : 'Premium woven finish'),
     occasion: product.occasion,
     description:
+      rawProduct?.description ||
       `${product.name} is curated for a premium boutique saree experience with clear price, stock, blouse, care, and delivery information from the customer storefront API.`,
     careInstructions:
+      rawProduct?.careInstructions ||
       'Dry clean recommended. Store folded in a breathable saree cover away from direct sunlight.',
-    countryOfOrigin: 'India',
-    sareeLength: '5.5 m',
-    sareeWidth: '1.12 m approx.',
-    blouseIncluded: true,
-    blouseDetails: '0.8 m blouse piece included. Final blouse styling and tailoring can be confirmed before dispatch.',
-    taxInformation: 'Inclusive of applicable GST where configured.',
-    images: [
-      image,
-      { ...image, altText: `${product.name} border detail`, sortOrder: 2 },
-      { ...image, altText: `${product.name} fabric close-up`, sortOrder: 3 },
-    ],
+    countryOfOrigin: rawProduct?.countryOfOrigin || 'India',
+    sareeLength: rawProduct?.sareeLength || '5.5 m',
+    sareeWidth: rawProduct?.sareeWidth || '1.12 m approx.',
+    blouseIncluded: rawProduct?.blouseIncluded ?? true,
+    blouseDetails:
+      rawProduct?.blouseDetails ||
+      '0.8 m blouse piece included. Final blouse styling and tailoring can be confirmed before dispatch.',
+    taxInformation: rawProduct?.taxInformation || 'Inclusive of applicable GST where configured.',
+    images,
     variants: [
       {
         id: `${product.id}-default`,
@@ -234,10 +262,15 @@ function cardToDetail(
     ],
     relatedProductIds: relatedProducts.map((item) => item.id),
     relatedProducts,
-    deliveryEstimate: 'Estimated delivery in 3-7 business days after order confirmation.',
-    codAvailable: product.availability !== 'out_of_stock' && product.availability !== 'coming_soon',
-    returnWindow: '7 day return or exchange support as per return policy.',
-    sizeChart: [
+    deliveryEstimate:
+      rawProduct?.deliveryEstimate || 'Estimated delivery in 3-7 business days after order confirmation.',
+    codAvailable:
+      rawProduct?.codAvailable ??
+      (product.availability !== 'out_of_stock' && product.availability !== 'coming_soon'),
+    returnWindow: rawProduct?.returnWindow || '7 day return or exchange support as per return policy.',
+    sizeChart: rawProduct?.sizeChart?.length
+      ? rawProduct.sizeChart
+      : [
       { label: 'Saree length', value: '5.5 m' },
       { label: 'Blouse piece', value: '0.8 m included' },
       { label: 'Saree width', value: '1.12 m approx.' },
@@ -403,6 +436,19 @@ async function loadProducts(): Promise<PublicProductCardDto[]> {
         reservedStock: product.reservedStock,
         status: product.status,
         coverImageUrl: product.coverImageUrl,
+        mrpInPaise: product.mrpInPaise,
+        offerPriceInPaise: product.offerPriceInPaise,
+        sareeType: product.sareeType,
+        fabric: product.fabric,
+        primaryColour: product.primaryColour,
+        colours: product.colours,
+        pattern: product.pattern,
+        occasion: product.occasion,
+        isNewArrival: product.isNewArrival,
+        isBestSeller: product.isBestSeller,
+        averageRating: product.averageRating,
+        reviewCount: product.reviewCount,
+        images: product.images,
       },
       index,
     ),
@@ -415,6 +461,7 @@ export async function getStorefrontProductDetail(
   const allItems = await loadProducts();
   const product = allItems.find((item) => item.slug === slug || item.id === slug);
   if (!product) return null;
+  const rawProduct = await ProductModel.findById(product.id).lean().catch(() => null);
 
   const relatedProducts = allItems
     .filter((item) => item.slug !== product.slug)
@@ -427,7 +474,11 @@ export async function getStorefrontProductDetail(
     .slice(0, 4);
   const fallbackRelated = allItems.filter((item) => item.slug !== product.slug).slice(0, 4);
 
-  return cardToDetail(product, relatedProducts.length > 0 ? relatedProducts : fallbackRelated);
+  return cardToDetail(
+    product,
+    relatedProducts.length > 0 ? relatedProducts : fallbackRelated,
+    rawProduct as ProductWithId | null,
+  );
 }
 
 export async function listStorefrontProducts(

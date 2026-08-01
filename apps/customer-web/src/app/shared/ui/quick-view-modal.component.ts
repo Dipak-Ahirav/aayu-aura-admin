@@ -27,8 +27,12 @@ import { whatsappUrl } from '../utilities/whatsapp';
 
             <div class="detail-price-row">
               <strong>{{ price(product.priceInPaise) }}</strong>
-              <span>{{ price(product.mrpInPaise) }}</span>
-              <em>{{ product.discount }}% off</em>
+              @if (showMrp(product.mrpInPaise, product.priceInPaise)) {
+                <span>{{ price(product.mrpInPaise!) }}</span>
+              }
+              @if (product.discount > 0) {
+                <em>{{ product.discount }}% off</em>
+              }
             </div>
 
             <div class="rating-row">
@@ -73,6 +77,10 @@ export class QuickViewModalComponent {
 
   protected price(value: number): string {
     return formatPrice(value);
+  }
+
+  protected showMrp(mrpInPaise: number | undefined, priceInPaise: number): boolean {
+    return Number(mrpInPaise ?? 0) > priceInPaise;
   }
 
   protected fallbackImage(tone: string): string {

@@ -30,4 +30,14 @@ export class ProductApiService {
       .patch<ApiSuccess<AdminProductDto>>(`${environment.apiBaseUrl}/products/${id}`, product)
       .pipe(map((response) => response.data));
   }
+
+  uploadProductImages(id: string, files: readonly File[]) {
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append('images', file);
+    }
+    return this.http
+      .post<ApiSuccess<AdminProductDto>>(`${environment.apiBaseUrl}/products/${id}/images`, formData)
+      .pipe(map((response) => response.data));
+  }
 }

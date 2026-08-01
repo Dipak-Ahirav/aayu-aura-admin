@@ -156,6 +156,16 @@ type StatusFilter = 'All' | ProductStatus;
               </mat-form-field>
 
               <mat-form-field appearance="outline">
+                <mat-label>MRP</mat-label>
+                <input matInput type="number" [(ngModel)]="mrpPrice" name="mrpPrice" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Offer price</mat-label>
+                <input matInput type="number" [(ngModel)]="offerPrice" name="offerPrice" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
                 <mat-label>Physical stock</mat-label>
                 <input
                   matInput
@@ -189,6 +199,157 @@ type StatusFilter = 'All' | ProductStatus;
                 <mat-label>Internal notes</mat-label>
                 <input matInput [(ngModel)]="form.internalNotes" name="notes" />
               </mat-form-field>
+            </div>
+
+            <div class="subsection-heading">
+              <h3>Customer product detail</h3>
+              <p>These values feed the customer homepage, shop/search cards, and product page.</p>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Saree type</mat-label>
+                <input matInput [(ngModel)]="form.sareeType" name="sareeType" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Fabric</mat-label>
+                <input matInput [(ngModel)]="form.fabric" name="fabric" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Primary colour</mat-label>
+                <input matInput [(ngModel)]="form.primaryColour" name="primaryColour" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Colours</mat-label>
+                <input matInput [(ngModel)]="coloursText" name="coloursText" placeholder="Wine, Gold" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Pattern</mat-label>
+                <input matInput [(ngModel)]="form.pattern" name="pattern" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Work</mat-label>
+                <input matInput [(ngModel)]="form.work" name="work" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Occasion</mat-label>
+                <input matInput [(ngModel)]="form.occasion" name="occasion" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Collection</mat-label>
+                <input matInput [(ngModel)]="form.collection" name="collection" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Saree length</mat-label>
+                <input matInput [(ngModel)]="form.sareeLength" name="sareeLength" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Saree width</mat-label>
+                <input matInput [(ngModel)]="form.sareeWidth" name="sareeWidth" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Delivery estimate</mat-label>
+                <input matInput [(ngModel)]="form.deliveryEstimate" name="deliveryEstimate" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Return window</mat-label>
+                <input matInput [(ngModel)]="form.returnWindow" name="returnWindow" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Rating</mat-label>
+                <input matInput type="number" min="0" max="5" step="0.1" [(ngModel)]="form.averageRating" name="averageRating" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Review count</mat-label>
+                <input matInput type="number" [(ngModel)]="form.reviewCount" name="reviewCount" />
+              </mat-form-field>
+
+              <label class="storefront-toggle">
+                <input type="checkbox" [(ngModel)]="form.blouseIncluded" name="blouseIncluded" />
+                <span>Blouse included<small>Shown on the customer product detail page</small></span>
+              </label>
+
+              <label class="storefront-toggle">
+                <input type="checkbox" [(ngModel)]="form.codAvailable" name="codAvailable" />
+                <span>COD available<small>Used in checkout/product delivery messaging</small></span>
+              </label>
+
+              <label class="storefront-toggle">
+                <input type="checkbox" [(ngModel)]="form.isNewArrival" name="isNewArrival" />
+                <span>New arrival<small>Can appear in homepage new arrivals</small></span>
+              </label>
+
+              <label class="storefront-toggle">
+                <input type="checkbox" [(ngModel)]="form.isBestSeller" name="isBestSeller" />
+                <span>Best seller<small>Can appear in bestseller sections</small></span>
+              </label>
+
+              <mat-form-field appearance="outline" class="wide">
+                <mat-label>Description</mat-label>
+                <textarea matInput rows="3" [(ngModel)]="form.description" name="description"></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="wide">
+                <mat-label>Care instructions</mat-label>
+                <textarea matInput rows="3" [(ngModel)]="form.careInstructions" name="careInstructions"></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="wide">
+                <mat-label>Blouse details</mat-label>
+                <textarea matInput rows="2" [(ngModel)]="form.blouseDetails" name="blouseDetails"></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="wide">
+                <mat-label>Size chart</mat-label>
+                <textarea matInput rows="3" [(ngModel)]="sizeChartText" name="sizeChartText" placeholder="Saree length: 5.5 m"></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="wide">
+                <mat-label>Video URLs</mat-label>
+                <input matInput [(ngModel)]="videoUrlsText" name="videoUrlsText" placeholder="Comma separated public URLs" />
+              </mat-form-field>
+            </div>
+
+            <div class="upload-panel">
+              <div>
+                <h3>Product images</h3>
+                <p>Upload up to 10 images. Files are saved on the API server and MongoDB stores only URLs.</p>
+              </div>
+              <input type="file" accept="image/*" multiple (change)="selectImages($event)" />
+              @if (imageFiles.length) {
+                <p class="muted">{{ imageFiles.length }} image(s) selected. Save the product to upload them.</p>
+              }
+              <div class="form-actions">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="uploadImagesToSelectedProduct()"
+                  [disabled]="saving() || !imageFiles.length || !selectedProduct()"
+                >
+                  <mat-icon>upload</mat-icon>
+                  Upload to selected product
+                </button>
+              </div>
+              @if (selectedProduct()?.images?.length || selectedProduct()?.coverImageUrl) {
+                <div class="image-grid">
+                  @for (image of productImages(selectedProduct()); track image.url) {
+                    <img [src]="image.url" [alt]="image.altText" />
+                  }
+                </div>
+              }
             </div>
 
             <div class="form-actions">
@@ -525,10 +686,47 @@ type StatusFilter = 'All' | ProductStatus;
         margin: 0 0 6px;
         font-size: 1.08rem;
       }
+      h3 {
+        margin: 0 0 6px;
+        font-size: 1rem;
+      }
       p {
         margin: 0;
         color: var(--aa-muted);
         line-height: 1.55;
+      }
+      .subsection-heading {
+        padding-top: 8px;
+        border-top: 1px solid var(--aa-border);
+      }
+      .upload-panel {
+        display: grid;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid var(--aa-border);
+        border-radius: 8px;
+        background: #fffaf3;
+      }
+      .upload-panel input[type='file'] {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px;
+        border: 1px dashed rgba(123, 31, 53, 0.35);
+        border-radius: 8px;
+        background: #fff;
+      }
+      .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+        gap: 10px;
+      }
+      .image-grid img {
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
+        border: 1px solid var(--aa-border);
+        border-radius: 8px;
+        background: #fff;
       }
       .table-wrap {
         overflow-x: auto;
@@ -681,6 +879,12 @@ export class ProductsPageComponent {
   purchasePrice = 0;
   landedCost = 0;
   sellingPrice = 0;
+  mrpPrice = 0;
+  offerPrice = 0;
+  coloursText = '';
+  sizeChartText = '';
+  videoUrlsText = '';
+  imageFiles: File[] = [];
   form: Omit<
     CreateProductDto,
     'purchasePriceInPaise' | 'landedCostInPaise' | 'sellingPriceInPaise'
@@ -695,6 +899,31 @@ export class ProductsPageComponent {
     reorderLevel: 5,
     hsn: '',
     gstRate: 0,
+    sareeType: '',
+    fabric: '',
+    primaryColour: '',
+    colours: [],
+    pattern: '',
+    work: '',
+    occasion: '',
+    collection: '',
+    description: '',
+    careInstructions: '',
+    countryOfOrigin: 'India',
+    sareeLength: '',
+    sareeWidth: '',
+    blouseIncluded: true,
+    blouseDetails: '',
+    taxInformation: '',
+    deliveryEstimate: '',
+    codAvailable: true,
+    returnWindow: '',
+    isNewArrival: false,
+    isBestSeller: false,
+    averageRating: 4.5,
+    reviewCount: 0,
+    sizeChart: [],
+    videoUrls: [],
     internalNotes: '',
   };
 
@@ -750,10 +979,7 @@ export class ProductsPageComponent {
 
     request.subscribe({
       next: (product) => {
-        this.saving.set(false);
-        this.selectedProduct.set(product);
-        this.resetForm();
-        this.refresh();
+        this.uploadImagesIfNeeded(product);
       },
       error: () => {
         this.saving.set(false);
@@ -780,10 +1006,43 @@ export class ProductsPageComponent {
       hsn: product.hsn ?? '',
       gstRate: product.gstRate ?? 0,
       internalNotes: product.internalNotes ?? '',
+      sareeType: product.sareeType ?? '',
+      fabric: product.fabric ?? '',
+      primaryColour: product.primaryColour ?? '',
+      colours: product.colours ?? [],
+      pattern: product.pattern ?? '',
+      work: product.work ?? '',
+      occasion: product.occasion ?? '',
+      collection: product.collection ?? '',
+      description: product.description ?? '',
+      careInstructions: product.careInstructions ?? '',
+      countryOfOrigin: product.countryOfOrigin ?? 'India',
+      sareeLength: product.sareeLength ?? '',
+      sareeWidth: product.sareeWidth ?? '',
+      blouseIncluded: product.blouseIncluded ?? true,
+      blouseDetails: product.blouseDetails ?? '',
+      taxInformation: product.taxInformation ?? '',
+      deliveryEstimate: product.deliveryEstimate ?? '',
+      codAvailable: product.codAvailable ?? true,
+      returnWindow: product.returnWindow ?? '',
+      isNewArrival: product.isNewArrival ?? false,
+      isBestSeller: product.isBestSeller ?? false,
+      averageRating: product.averageRating ?? 4.5,
+      reviewCount: product.reviewCount ?? 0,
+      sizeChart: product.sizeChart ?? [],
+      videoUrls: product.videoUrls ?? [],
     };
     this.purchasePrice = this.rupees(product.purchasePriceInPaise);
     this.landedCost = this.rupees(product.landedCostInPaise);
     this.sellingPrice = this.rupees(product.sellingPriceInPaise);
+    this.mrpPrice = this.rupees(product.mrpInPaise ?? 0);
+    this.offerPrice = this.rupees(product.offerPriceInPaise ?? 0);
+    this.coloursText = (product.colours ?? []).join(', ');
+    this.sizeChartText = (product.sizeChart ?? [])
+      .map((item) => `${item.label}: ${item.value}`)
+      .join('\n');
+    this.videoUrlsText = (product.videoUrls ?? []).join(', ');
+    this.imageFiles = [];
   }
 
   archiveProduct(product: AdminProductDto): void {
@@ -806,6 +1065,12 @@ export class ProductsPageComponent {
     this.purchasePrice = 0;
     this.landedCost = 0;
     this.sellingPrice = 0;
+    this.mrpPrice = 0;
+    this.offerPrice = 0;
+    this.coloursText = '';
+    this.sizeChartText = '';
+    this.videoUrlsText = '';
+    this.imageFiles = [];
     this.form = {
       name: '',
       sku: '',
@@ -817,6 +1082,31 @@ export class ProductsPageComponent {
       reorderLevel: 5,
       hsn: '',
       gstRate: 0,
+      sareeType: '',
+      fabric: '',
+      primaryColour: '',
+      colours: [],
+      pattern: '',
+      work: '',
+      occasion: '',
+      collection: '',
+      description: '',
+      careInstructions: '',
+      countryOfOrigin: 'India',
+      sareeLength: '',
+      sareeWidth: '',
+      blouseIncluded: true,
+      blouseDetails: '',
+      taxInformation: '',
+      deliveryEstimate: '',
+      codAvailable: true,
+      returnWindow: '',
+      isNewArrival: false,
+      isBestSeller: false,
+      averageRating: 4.5,
+      reviewCount: 0,
+      sizeChart: [],
+      videoUrls: [],
       internalNotes: '',
     };
   }
@@ -857,13 +1147,63 @@ export class ProductsPageComponent {
     return valueInPaise / 100;
   }
 
+  selectImages(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.imageFiles = Array.from(input.files ?? []).filter((file) => file.type.startsWith('image/'));
+    if (this.imageFiles.length !== (input.files?.length ?? 0)) {
+      this.error.set('Only image files are allowed for product uploads.');
+    }
+  }
+
+  productImages(product: AdminProductDto | null): { url: string; altText: string }[] {
+    if (!product) return [];
+    const images = product.images?.length
+      ? product.images
+      : product.coverImageUrl
+        ? [{ url: product.coverImageUrl, altText: product.name }]
+        : [];
+    return images.map((image) => ({ url: image.url, altText: image.altText || product.name }));
+  }
+
+  uploadImagesToSelectedProduct(): void {
+    const product = this.selectedProduct();
+    if (!product) {
+      this.error.set('Select a product before uploading images.');
+      return;
+    }
+    if (!this.imageFiles.length) {
+      this.error.set('Select at least one image file to upload.');
+      return;
+    }
+
+    this.error.set(null);
+    this.saving.set(true);
+    this.products.uploadProductImages(product.id, this.imageFiles).subscribe({
+      next: (updated) => {
+        this.saving.set(false);
+        this.imageFiles = [];
+        this.selectedProduct.set(updated);
+        this.refresh();
+      },
+      error: () => {
+        this.saving.set(false);
+        this.error.set('Images could not be uploaded. Use image files under 5 MB and try again.');
+      },
+    });
+  }
+
   private formPayload(): CreateProductDto {
     return {
       ...this.form,
       purchasePriceInPaise: this.paise(this.purchasePrice),
       landedCostInPaise: this.paise(this.landedCost),
       sellingPriceInPaise: this.paise(this.sellingPrice),
+      mrpInPaise: this.mrpPrice > 0 ? this.paise(this.mrpPrice) : undefined,
+      offerPriceInPaise: this.offerPrice > 0 ? this.paise(this.offerPrice) : undefined,
       reservedStock: Math.min(this.form.reservedStock ?? 0, this.form.currentPhysicalStock),
+      colours: this.parseList(this.coloursText),
+      sizeChart: this.parseSizeChart(this.sizeChartText),
+      videoUrls: this.parseList(this.videoUrlsText),
     };
   }
 
@@ -873,5 +1213,51 @@ export class ProductsPageComponent {
 
   private productCategories(items: readonly MasterDataDto[]): string[] {
     return masterValues(items, 'Product Category');
+  }
+
+  private uploadImagesIfNeeded(product: AdminProductDto): void {
+    if (!this.imageFiles.length) {
+      this.finishSave(product);
+      return;
+    }
+
+    this.products.uploadProductImages(product.id, this.imageFiles).subscribe({
+      next: (updated) => this.finishSave(updated),
+      error: () => {
+        this.saving.set(false);
+        this.error.set('Product saved, but images could not be uploaded. Try uploading smaller image files.');
+        this.selectedProduct.set(product);
+        this.refresh();
+      },
+    });
+  }
+
+  private finishSave(product: AdminProductDto): void {
+    this.saving.set(false);
+    this.selectedProduct.set(product);
+    this.resetForm();
+    this.refresh();
+  }
+
+  private parseList(value: string): string[] {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  private parseSizeChart(value: string): { label: string; value: string }[] {
+    return value
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const [label, ...rest] = line.split(':');
+        return {
+          label: (label ?? '').trim(),
+          value: rest.join(':').trim(),
+        };
+      })
+      .filter((item) => item.label && item.value);
   }
 }

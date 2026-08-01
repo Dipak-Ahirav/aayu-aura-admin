@@ -48,7 +48,7 @@ import { ProductDetailService } from './product-detail.service';
             </div>
             <div class="detail-price-row">
               <strong>{{ price(product.offerPriceInPaise ?? product.sellingPriceInPaise) }}</strong>
-              @if (product.mrpInPaise) {
+              @if (product.mrpInPaise && product.mrpInPaise > (product.offerPriceInPaise ?? product.sellingPriceInPaise)) {
                 <span>{{ price(product.mrpInPaise) }}</span>
               }
               @if (product.discountPercentage) {
@@ -204,7 +204,7 @@ export class ProductDetailPageComponent {
       pattern: product.pattern ?? 'Elegant border',
       occasion: product.occasion ?? 'Occasion wear',
       priceInPaise: product.offerPriceInPaise ?? product.sellingPriceInPaise,
-      mrpInPaise: product.mrpInPaise ?? product.sellingPriceInPaise,
+      mrpInPaise: product.mrpInPaise,
       discount: product.discountPercentage ?? 0,
       rating: product.averageRating ?? 4.6,
       reviews: product.reviewCount ?? 0,

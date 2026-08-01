@@ -32,7 +32,7 @@ export class AuthService {
     const accessToken = signToken(
       user._id.toString(),
       env.JWT_ACCESS_SECRET,
-      env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],
+      env.ADMIN_JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],
     );
 
     return {

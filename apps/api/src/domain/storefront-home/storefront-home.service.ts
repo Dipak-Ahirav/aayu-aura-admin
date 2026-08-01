@@ -116,30 +116,33 @@ function toHomepageProduct(product: ProductWithId, index: number): PublicHomepag
   const sellingPriceInPaise = Number.isFinite(product.sellingPriceInPaise)
     ? product.sellingPriceInPaise
     : demoProducts[index % demoProducts.length]?.sellingPriceInPaise ?? 0;
-  const mrp = Math.max(Math.round(sellingPriceInPaise * 1.18), sellingPriceInPaise);
+  const displayPrice = product.offerPriceInPaise ?? sellingPriceInPaise;
+  const mrp = product.mrpInPaise;
   const demo = demoProducts[index % demoProducts.length] ?? demoProducts[0];
   const name = product.name?.trim() || demo.name;
+  const image = product.images?.[0]?.url || product.coverImageUrl;
 
   return {
     id: product._id.toString(),
     productCode: product.sku,
     slug: slugify(name || product.sku || demo.slug),
     name,
-    category: product.category,
-    sareeType: product.category || demo.sareeType,
-    fabric: demo.fabric,
-    primaryColour: demo.primaryColour,
-    pattern: demo.pattern,
-    occasion: demo.occasion,
+    category: product.category || demo.category,
+    sareeType: product.sareeType || demo.sareeType,
+    fabric: product.fabric || demo.fabric,
+    primaryColour: product.primaryColour || demo.primaryColour,
+    pattern: product.pattern || demo.pattern,
+    occasion: product.occasion || demo.occasion,
     sellingPriceInPaise,
     mrpInPaise: mrp,
-    discountPercentage: mrp > 0 ? Math.max(Math.round(((mrp - sellingPriceInPaise) / mrp) * 100), 0) : 0,
-    rating: 4.5 + (index % 5) / 10,
-    reviewCount: 24 + index * 13,
+    discountPercentage:
+      mrp && mrp > displayPrice ? Math.max(Math.round(((mrp - displayPrice) / mrp) * 100), 0) : 0,
+    rating: product.averageRating ?? 4.5 + (index % 5) / 10,
+    reviewCount: product.reviewCount ?? 24 + index * 13,
     availability: availability(product),
-    imageUrl: product.coverImageUrl,
+    imageUrl: image,
     imageTone: imageTone(index),
-    colours: demo.colours,
+    colours: product.colours?.length ? product.colours : demo.colours,
   };
 }
 
@@ -181,8 +184,14 @@ export async function getStorefrontHome(): Promise<PublicHomepageDto> {
     categories: categories.map((category) =>
       shortcut(category, 'Browse dynamic MongoDB category', `/category/${slugify(category)}`),
     ),
-    newArrivals: homepageProducts.slice(0, 4),
-    bestSellers: homepageProducts.slice(2, 6),
+    newArrivals: homepageProducts
+      .filter((_product, index) => products[index]?.isNewArrival)
+      .concat(homepageProducts)
+      .slice(0, 4),
+    bestSellers: homepageProducts
+      .filter((_product, index) => products[index]?.isBestSeller)
+      .concat(homepageProducts.slice(2))
+      .slice(0, 4),
     featuredProducts: homepageProducts.slice(0, 8),
     reviews: [
       {

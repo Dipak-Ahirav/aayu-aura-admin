@@ -353,7 +353,7 @@ export class CollectionsPageComponent {
       pattern: product.pattern ?? 'Elegant border',
       occasion: product.occasion ?? 'Occasion wear',
       priceInPaise: product.offerPriceInPaise ?? product.sellingPriceInPaise,
-      mrpInPaise: product.mrpInPaise ?? product.sellingPriceInPaise,
+      mrpInPaise: product.mrpInPaise,
       discount: product.discountPercentage ?? 0,
       rating: product.averageRating ?? 4.6,
       reviews: product.reviewCount ?? 0,

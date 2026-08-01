@@ -2,6 +2,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import path from 'node:path';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -13,6 +14,7 @@ import { v1Router } from './routes/v1.js';
 
 export function createApp(): express.Express {
   const app = express();
+  app.set('trust proxy', 1);
   const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
       if (isCorsOriginAllowed(origin)) {
@@ -26,7 +28,7 @@ export function createApp(): express.Express {
   };
 
   app.use(requestId);
-  app.use(helmet());
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.options('*', cors(corsOptions));
   app.use(cors(corsOptions));
   app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true }));
@@ -40,6 +42,7 @@ export function createApp(): express.Express {
   }));
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
+  app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
   app.use('/api/v1', v1Router);
   app.use(notFoundHandler);
   app.use(errorHandler);

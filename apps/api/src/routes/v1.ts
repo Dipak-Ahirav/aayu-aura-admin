@@ -72,6 +72,8 @@ import {
   createProduct,
   listProducts,
   updateProduct,
+  uploadProductImageFiles,
+  uploadProductImages,
 } from '../domain/products/product.controller.js';
 import {
   cancelPurchase,
@@ -183,6 +185,7 @@ v1Router.delete('/master-data/:id', authenticate, deactivateMasterData);
 v1Router.get('/products', authenticate, listProducts);
 v1Router.post('/products', authenticate, createProduct);
 v1Router.patch('/products/:id', authenticate, updateProduct);
+v1Router.post('/products/:id/images', authenticate, uploadProductImageFiles, uploadProductImages);
 v1Router.get('/customers', authenticate, listCustomers);
 v1Router.post('/customers', authenticate, createCustomer);
 v1Router.get('/customers/:id', authenticate, getCustomer);

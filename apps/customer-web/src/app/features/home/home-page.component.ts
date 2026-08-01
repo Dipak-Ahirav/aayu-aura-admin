@@ -142,7 +142,7 @@ export class HomePageComponent {
       pattern: product.pattern ?? 'Elegant drape',
       occasion: product.occasion ?? 'Festive',
       priceInPaise: product.sellingPriceInPaise,
-      mrpInPaise: product.mrpInPaise ?? product.sellingPriceInPaise,
+      mrpInPaise: product.mrpInPaise,
       discount: product.discountPercentage ?? 0,
       rating: product.rating,
       reviews: product.reviewCount,

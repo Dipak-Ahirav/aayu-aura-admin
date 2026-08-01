@@ -18,7 +18,9 @@ import { formatPrice } from '../utilities/storefront-demo-data';
         <span class="saree-fold fold-two"></span>
         <span class="saree-border"></span>
         <span class="stock-badge">{{ product().stock }}</span>
-        <span class="discount-badge">{{ product().discount }}% off</span>
+        @if (product().discount > 0) {
+          <span class="discount-badge">{{ product().discount }}% off</span>
+        }
         <span class="quick-view-overlay">View details</span>
       </a>
 
@@ -30,7 +32,9 @@ import { formatPrice } from '../utilities/storefront-demo-data';
 
         <div class="price-row">
           <strong>{{ price(product().priceInPaise) }}</strong>
-          <span>{{ price(product().mrpInPaise) }}</span>
+          @if (showMrp()) {
+            <span>{{ price(product().mrpInPaise!) }}</span>
+          }
         </div>
 
         <div class="rating-row" aria-label="Rating and reviews">
@@ -66,6 +70,11 @@ export class ProductCardComponent {
 
   protected price(value: number): string {
     return formatPrice(value);
+  }
+
+  protected showMrp(): boolean {
+    const mrp = Number(this.product().mrpInPaise ?? 0);
+    return mrp > this.product().priceInPaise;
   }
 
   protected fallbackImage(tone: string): string {

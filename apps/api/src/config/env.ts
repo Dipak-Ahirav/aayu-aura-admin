@@ -32,6 +32,7 @@ const envSchema = z.object({
     .string()
     .min(32)
     .default('development-access-secret-change-before-production'),
+  ADMIN_JWT_ACCESS_EXPIRES_IN: z.string().default('30m'),
   JWT_REFRESH_SECRET: z
     .string()
     .min(32)

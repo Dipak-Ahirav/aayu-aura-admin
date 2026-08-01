@@ -10,7 +10,7 @@ export interface StorefrontProduct {
   pattern: string;
   occasion: string;
   priceInPaise: number;
-  mrpInPaise: number;
+  mrpInPaise?: number;
   discount: number;
   rating: number;
   reviews: number;
