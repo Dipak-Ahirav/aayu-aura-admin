@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import type { PublicCartQuoteDto, PublicCartQuoteLineDto } from '@aayu-aura/shared-types';
 import { formatPrice } from '../../shared/utilities/storefront-demo-data';
+import { productImageUrl } from '../../shared/utilities/image-url';
 import { CartStore } from '../../state/cart/cart.store';
 import type { CartLine } from '../../state/cart/cart.store';
 import { CustomerSessionStore } from '../../state/session/customer-session.store';
@@ -56,7 +57,7 @@ import { CartQuoteService } from './cart-quote.service';
             @for (line of cartQuote.items; track line.productSlug) {
               <article class="cart-line">
                 <a class="mini-media product-media-{{ line.imageTone ?? 'wine' }}" [routerLink]="['/saree', line.productSlug]">
-                  <img [src]="line.image?.url || fallbackImage(line.imageTone)" [alt]="line.name" loading="lazy">
+                  <img [src]="displayImageUrl(line.image?.url) || fallbackImage(line.imageTone)" [alt]="line.name" loading="lazy">
                 </a>
                 <div class="cart-line-copy">
                   <span class="stock-badge inline">{{ line.stockMessage }}</span>
@@ -312,7 +313,7 @@ export class CartPageComponent {
       rating: 4.6,
       reviews: 0,
       stock: line.stockMessage.includes('Out') ? 'Out of stock' : 'In stock',
-      imageUrl: line.image?.url,
+      imageUrl: productImageUrl(line.image?.url),
       imageTone: line.imageTone ?? 'wine',
       colours: ['#7a1f32', '#b98b2d', '#fffaf1'],
     });
@@ -335,5 +336,9 @@ export class CartPageComponent {
       wine: '/images/home/hero-saree-model.png',
     };
     return images[tone ?? 'wine'] ?? images['wine'];
+  }
+
+  protected displayImageUrl(url: string | undefined): string | undefined {
+    return productImageUrl(url);
   }
 }

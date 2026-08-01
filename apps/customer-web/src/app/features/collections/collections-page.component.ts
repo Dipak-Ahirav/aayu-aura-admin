@@ -13,6 +13,7 @@ import type {
 import { ProductCardComponent } from '../../shared/ui/product-card.component';
 import { StorefrontProduct } from '../../shared/models/storefront-demo.models';
 import { featuredProducts, formatPrice } from '../../shared/utilities/storefront-demo-data';
+import { productImageUrl } from '../../shared/utilities/image-url';
 import { CollectionsQuery, CollectionsService } from './collections.service';
 
 @Component({
@@ -358,7 +359,7 @@ export class CollectionsPageComponent {
       rating: product.averageRating ?? 4.6,
       reviews: product.reviewCount ?? 0,
       stock: this.stockLabel(product.availability),
-      imageUrl: product.coverImage?.url,
+      imageUrl: productImageUrl(product.coverImage?.url),
       imageTone: product.imageTone ?? 'wine',
       colours: product.colours ?? ['#7a1f32', '#b98b2d', '#fffaf1'],
     };

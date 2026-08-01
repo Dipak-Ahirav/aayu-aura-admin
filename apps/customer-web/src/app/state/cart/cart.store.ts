@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import type { StorefrontProduct } from '../../shared/models/storefront-demo.models';
+import { productImageUrl } from '../../shared/utilities/image-url';
 
 export interface CartLine {
   productId?: string;
@@ -44,7 +45,7 @@ export class CartStore {
             name: product.name,
             quantity: Math.min(Math.max(quantity, 1), 20),
             unitPriceInPaise: product.priceInPaise,
-            imageUrl: product.imageUrl,
+            imageUrl: productImageUrl(product.imageUrl),
             imageTone: product.imageTone,
             stock: product.stock,
           },
@@ -97,7 +98,7 @@ export class CartStore {
         name: line.name,
         quantity: line.quantity,
         unitPriceInPaise: line.unitPriceInPaise,
-        imageUrl: line.image?.url ?? existing?.imageUrl,
+        imageUrl: productImageUrl(line.image?.url) ?? existing?.imageUrl,
         imageTone: line.imageTone ?? existing?.imageTone,
         stock: line.stockMessage,
       };

@@ -12,6 +12,7 @@ import type {
 } from '@aayu-aura/shared-types';
 import { ProductCardComponent } from '../../shared/ui/product-card.component';
 import { StorefrontProduct } from '../../shared/models/storefront-demo.models';
+import { productImageUrl } from '../../shared/utilities/image-url';
 import { SearchQuery, SearchService } from './search.service';
 
 @Component({
@@ -409,7 +410,7 @@ export class SearchPageComponent {
       rating: product.averageRating ?? 4.6,
       reviews: product.reviewCount ?? 0,
       stock: this.stockLabel(product.availability),
-      imageUrl: product.coverImage?.url,
+      imageUrl: productImageUrl(product.coverImage?.url),
       imageTone: product.imageTone ?? 'wine',
       colours: product.colours ?? ['#7a1f32', '#b98b2d', '#fffaf1'],
     };

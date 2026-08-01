@@ -5,6 +5,7 @@ import { PublicHomepageProductDto } from '@aayu-aura/shared-types';
 import { StorefrontProduct } from '../../shared/models/storefront-demo.models';
 import { ProductCardComponent } from '../../shared/ui/product-card.component';
 import { featuredProducts } from '../../shared/utilities/storefront-demo-data';
+import { productImageUrl } from '../../shared/utilities/image-url';
 import { HomeService } from './home.service';
 
 @Component({
@@ -147,7 +148,7 @@ export class HomePageComponent {
       rating: product.rating,
       reviews: product.reviewCount,
       stock: this.stockLabel(product.availability),
-      imageUrl: product.imageUrl,
+      imageUrl: productImageUrl(product.imageUrl),
       imageTone: product.imageTone ?? featuredProducts[index % featuredProducts.length].imageTone,
       colours: product.colours,
     }));

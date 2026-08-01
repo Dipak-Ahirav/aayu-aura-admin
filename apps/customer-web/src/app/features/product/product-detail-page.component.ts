@@ -10,6 +10,7 @@ import type {
 import { ProductCardComponent } from '../../shared/ui/product-card.component';
 import { StorefrontProduct } from '../../shared/models/storefront-demo.models';
 import { formatPrice } from '../../shared/utilities/storefront-demo-data';
+import { productImageUrl } from '../../shared/utilities/image-url';
 import { whatsappUrl } from '../../shared/utilities/whatsapp';
 import { WishlistStore } from '../../state/wishlist/wishlist.store';
 import { CartStore } from '../../state/cart/cart.store';
@@ -25,7 +26,7 @@ import { ProductDetailService } from './product-detail.service';
         <section class="product-detail-shell premium-product-detail">
           <div class="media-gallery">
             <div class="main-product-media product-media-{{ product.imageTone ?? 'wine' }}">
-              @if (product.images[0]?.url; as imageUrl) {
+              @if (displayImageUrl(product.images[0]?.url); as imageUrl) {
                 <img [src]="imageUrl" [alt]="product.images[0]?.altText ?? product.name">
               }
               <span class="media-badge">Zoom-ready gallery</span>
@@ -209,9 +210,13 @@ export class ProductDetailPageComponent {
       rating: product.averageRating ?? 4.6,
       reviews: product.reviewCount ?? 0,
       stock: this.stockText(product.availability) as StorefrontProduct['stock'],
-      imageUrl: product.coverImage?.url,
+      imageUrl: productImageUrl(product.coverImage?.url),
       imageTone: product.imageTone ?? 'wine',
       colours: product.colours ?? ['#7a1f32', '#b98b2d', '#fffaf1'],
     };
+  }
+
+  protected displayImageUrl(url: string | undefined): string | undefined {
+    return productImageUrl(url);
   }
 }
