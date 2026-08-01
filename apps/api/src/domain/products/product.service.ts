@@ -4,6 +4,7 @@ import { recordAudit } from '../audit-logs/audit-recorder.js';
 import { AppError } from '../../infrastructure/http/app-error.js';
 import { ProductModel, type ProductDocument } from './product.model.js';
 import type { CreateProductInput, UpdateProductInput } from './product.schemas.js';
+import { publicProductImageUrl } from './product-image-url.js';
 
 function cleanEmpty(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
@@ -38,7 +39,7 @@ function toDto(product: ProductDocument & { _id: Types.ObjectId }): AdminProduct
     reorderLevel: product.reorderLevel,
     hsn: product.hsn,
     gstRate: product.gstRate,
-    coverImageUrl: product.coverImageUrl,
+    coverImageUrl: publicProductImageUrl(product.coverImageUrl),
     sareeType: product.sareeType,
     fabric: product.fabric,
     primaryColour: product.primaryColour,
@@ -64,7 +65,7 @@ function toDto(product: ProductDocument & { _id: Types.ObjectId }): AdminProduct
     reviewCount: product.reviewCount,
     sizeChart: product.sizeChart,
     images: product.images?.map((image, index) => ({
-      url: image.url,
+      url: publicProductImageUrl(image.url) ?? image.url,
       altText: image.altText || product.name,
       sortOrder: image.sortOrder ?? index + 1,
     })),

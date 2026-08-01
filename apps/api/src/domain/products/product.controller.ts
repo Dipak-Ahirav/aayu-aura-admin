@@ -6,6 +6,7 @@ import { ok } from '../../infrastructure/http/api-response.js';
 import { AppError } from '../../infrastructure/http/app-error.js';
 import { createProductSchema, updateProductSchema } from './product.schemas.js';
 import { ProductService } from './product.service.js';
+import { storedProductImageUrl } from './product-image-url.js';
 
 const productService = new ProductService();
 const uploadDir = path.resolve(process.cwd(), 'uploads', 'products');
@@ -76,12 +77,11 @@ export const uploadProductImages: RequestHandler = async (req, res, next) => {
       throw new AppError(400, 'PRODUCT_IMAGE_REQUIRED', 'Select at least one image to upload.');
     }
 
-    const origin = `${req.protocol}://${req.get('host')}`;
     const productId = Array.isArray(id) ? id[0] : (id ?? '');
     const product = await productService.addImages(
       productId,
       files.map((file, index) => ({
-        url: `${origin}/uploads/products/${file.filename}`,
+        url: storedProductImageUrl(file.filename),
         altText: file.originalname,
         sortOrder: index + 1,
       })),

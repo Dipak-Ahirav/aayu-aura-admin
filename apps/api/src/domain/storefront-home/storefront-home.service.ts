@@ -6,6 +6,7 @@ import type {
   PublicStorefrontImageTone,
 } from '@aayu-aura/shared-types';
 import { ProductModel, type ProductDocument } from '../products/product.model.js';
+import { publicProductImageUrl } from '../products/product-image-url.js';
 
 type ProductWithId = ProductDocument & { _id: { toString(): string } };
 
@@ -120,7 +121,7 @@ function toHomepageProduct(product: ProductWithId, index: number): PublicHomepag
   const mrp = product.mrpInPaise;
   const demo = demoProducts[index % demoProducts.length] ?? demoProducts[0];
   const name = product.name?.trim() || demo.name;
-  const image = product.images?.[0]?.url || product.coverImageUrl;
+  const image = publicProductImageUrl(product.images?.[0]?.url || product.coverImageUrl);
 
   return {
     id: product._id.toString(),

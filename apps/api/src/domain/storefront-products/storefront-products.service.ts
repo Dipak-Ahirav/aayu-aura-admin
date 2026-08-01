@@ -5,6 +5,7 @@ import type {
   PublicProductListResponseDto,
 } from '@aayu-aura/shared-types';
 import { ProductModel, type ProductDocument } from '../products/product.model.js';
+import { publicProductImageUrl } from '../products/product-image-url.js';
 
 type ProductWithId = ProductDocument & { _id: { toString(): string } };
 
@@ -155,7 +156,10 @@ function enrich(
     mrpInPaise && mrpInPaise > displayPriceInPaise
       ? Math.round(((mrpInPaise - displayPriceInPaise) / mrpInPaise) * 100)
       : 0;
-  const image = base.images?.[0] ?? (base.coverImageUrl ? { url: base.coverImageUrl } : undefined);
+  const rawImage = base.images?.[0] ?? (base.coverImageUrl ? { url: base.coverImageUrl } : undefined);
+  const image = rawImage
+    ? { ...rawImage, url: publicProductImageUrl(rawImage.url) ?? rawImage.url }
+    : undefined;
 
   return {
     id: base.id,
@@ -211,7 +215,7 @@ function cardToDetail(
   };
   const images = rawProduct?.images?.length
     ? rawProduct.images.map((item, index) => ({
-        url: item.url,
+        url: publicProductImageUrl(item.url) ?? item.url,
         altText: item.altText || product.name,
         sortOrder: item.sortOrder ?? index + 1,
       }))
